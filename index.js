@@ -56,8 +56,6 @@ const removeEmpty = (str) => str.replace(/^\s+|\s+$/gm, "");
       data: aSubjectData,
     });
   }
-  
-  console.log(test[14]);
 
   async function getAsubjectData(url) {
     const result = [];
