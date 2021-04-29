@@ -1,17 +1,57 @@
 {
-  "name": "knu-scheduler",
+  "name": "electron_react_quick_start",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
+  "private": true,
   "dependencies": {
-    "cheerio": "^1.0.0-rc.5",
-    "express": "^4.17.1",
-    "puppeteer": "^8.0.0"
+    "cheerio": "^1.0.0-rc.6",
+    "electron-is-dev": "^2.0.0",
+    "puppeteer-core": "^9.0.0",
+    "puppeteer-in-electron": "^3.0.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "main": "public/electron.js",
+  "scripts": {
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "electron:start": "wait-on http://localhost:3000 && electron .",
+    "start": "concurrently \"react-scripts start\" \"npm run electron:start\"",
+    "build": "react-scripts build && electron-builder",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "homepage": "./",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.2",
+    "electron": "^12.0.5",
+    "electron-builder": "^22.10.5",
+    "react-scripts": "^4.0.3",
+    "wait-on": "^5.3.0"
+  },
+  "build": {
+    "appId": "com.example.electron-app",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ]
   }
 }
