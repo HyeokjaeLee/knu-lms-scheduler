@@ -69,7 +69,7 @@ const LMS_crawler = async (id, pw, semester) => {
       data: await get_a_subject_data(subjectList[i].url),
     });
   }
-  console.log(result);
+  subWindow.close();
   return result;
 
   async function login() {
