@@ -46,7 +46,7 @@ app.on("activate", () => {
   await pie.initialize(app);
   browser = await pie.connect(app, puppeteer);
   subWindow = new BrowserWindow();
-  //subWindow.hide();
+  subWindow.hide();
 })();
 
 ipcMain.on("toMain", async (event, args) => {
