@@ -20,6 +20,7 @@ async function createWindow() {
       enableRemoteModule: false, // turn off remote
     },
   });
+  //
   mainWindow.loadURL(
     isDev
       ? "http://localhost:3000"
