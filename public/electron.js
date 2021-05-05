@@ -13,6 +13,8 @@ async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 1000,
+    show: false,
+    icon: "./KNU.png",
     webPreferences: {
       nodeIntegration: true, // is default value after Electron v5
       preload: path.join(__dirname, "preload.js"), // use a preload script
@@ -20,21 +22,25 @@ async function createWindow() {
       enableRemoteModule: false, // turn off remote
     },
   });
-  //
-  mainWindow.loadURL(
-    isDev
-      ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "../build/index.html")}`
-  );
+  mainWindow
+    .loadURL(
+      isDev
+        ? "http://localhost:3000"
+        : `file://${path.join(__dirname, "../build/index.html")}`
+    )
+    .then(
+      mainWindow.once("ready-to-show", () => {
+        mainWindow.show();
+      })
+    );
+
   mainWindow.on("closed", () => (mainWindow = null));
 }
 
 app.on("ready", createWindow);
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  app.quit();
 });
 
 app.on("activate", () => {
@@ -46,7 +52,11 @@ app.on("activate", () => {
 (async () => {
   await pie.initialize(app);
   browser = await pie.connect(app, puppeteer);
-  subWindow = new BrowserWindow({ width: 800, height: 900, show: false });
+  subWindow = new BrowserWindow({
+    width: 800,
+    height: 900,
+    show: false,
+  });
 })();
 
 ipcMain.on("toMain", async (event, semester) => {
@@ -77,9 +87,9 @@ const LMS_crawler = async (semester) => {
     await page.waitForSelector("#content > div.header-bar", {
       timeout: 999999,
     });
-    await page.wait;
-    mainWindow.webContents.send("fromLogin", true);
     //subWindow.hide();
+    mainWindow.webContents.send("fromLogin", true);
+    await page.wait;
   }
 
   async function get_a_subject_data(url) {

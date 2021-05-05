@@ -10,7 +10,6 @@ function App() {
   const [view, setView] = useState(<></>);
   window.api.receive("fromLogin", (data) => {
     setLogin(<Spinner type="grow" color="primary" />);
-    console.log(data);
   });
   window.api.receive("fromLMS", (data) => {
     setLogin(<></>);
@@ -18,12 +17,15 @@ function App() {
   });
   return (
     <div className="App">
-      <img src={img} style={{ width: "25vh" }} />
+      <img src={img} style={{ width: "25vh", marginBottom: "2vh" }} />
       <h1 style={{ color: "#1ABF50", fontWeight: "900", fontFamily: "title" }}>
         LMS 스케줄러
       </h1>
       {login}
       {view}
+      <footer style={{ height: "10vh" }}>
+        <hr />
+      </footer>
     </div>
   );
 }

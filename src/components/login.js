@@ -5,6 +5,7 @@ function Login(props) {
     <button
       className="login"
       onClick={() => window.api.send("toMain", semester)}
+      style={{ marginTop: "5vh" }}
     >
       Sign in
     </button>
