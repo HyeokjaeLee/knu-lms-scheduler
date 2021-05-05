@@ -1,55 +1,31 @@
 import React, { Component, useState } from "react";
 import "./App.css";
-import img from "./KNU.png";
+import img from "./img/KNU.png";
+import Login from "./components/login";
+import Subject from "./components/subject";
+import { Spinner, ListGroup, ListGroupItem } from "reactstrap";
 
 function App() {
-  const [password, setPassword] = useState(""),
-    [ID, setID] = useState("");
-  const [lms_data, set_lms_Data] = useState(undefined);
-  window.api.receive("fromMain", (data) => {
-    Login = [<></>];
-    set_lms_Data(data);
-    setView(
-      data.map((_data) => {
-        const lms = _data;
-        return lms.title;
-      })
-    );
+  const [login, setLogin] = useState(<Login />);
+  const [view, setView] = useState(<></>);
+  window.api.receive("fromLogin", (data) => {
+    setLogin(<Spinner type="grow" color="primary" />);
+    console.log(data);
   });
-  const info = [ID, password, "2021년1학기"];
-  let Login = [
-    <>
+  window.api.receive("fromLMS", (data) => {
+    setLogin(<></>);
+    setView(<Subject subjectList={data} />);
+  });
+  return (
+    <div className="App">
       <img src={img} style={{ width: "25vh" }} />
       <h1 style={{ color: "#1ABF50", fontWeight: "900", fontFamily: "title" }}>
         LMS 스케줄러
       </h1>
-      <div className="input_container">
-        <input
-          placeholder="Username"
-          type="text"
-          className="input"
-          onChange={(e) => {
-            setID(e.target.value);
-          }}
-        />
-      </div>
-      <div className="input_container">
-        <input
-          placeholder="Password"
-          type="password"
-          className="input"
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
-        />
-      </div>
-      <button className="login" onClick={() => window.api.send("toMain", info)}>
-        Sign in
-      </button>
-    </>,
-  ];
-  const [view, setView] = useState(Login);
-  return <div className="App">{Login}</div>;
+      {login}
+      {view}
+    </div>
+  );
 }
 
 export default App;

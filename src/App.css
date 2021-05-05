@@ -4,7 +4,8 @@
   flex-direction: column;
   text-align: center;
   align-items: center;
-  height: 85vh;
+  height: auto;
+  min-height: 100vh;
   padding-top: 15vh;
   font-family: "main";
 }

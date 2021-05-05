@@ -46,22 +46,19 @@ app.on("activate", () => {
 (async () => {
   await pie.initialize(app);
   browser = await pie.connect(app, puppeteer);
-  subWindow = new BrowserWindow();
-  subWindow.hide();
+  subWindow = new BrowserWindow({ width: 800, height: 900, show: false });
 })();
 
-ipcMain.on("toMain", async (event, args) => {
-  console.log(args);
-  const lms_data = await LMS_crawler(args[0], args[1], args[2]);
-  mainWindow.webContents.send("fromMain", lms_data);
+ipcMain.on("toMain", async (event, semester) => {
+  const lms_data = await LMS_crawler(semester);
+  mainWindow.webContents.send("fromLMS", lms_data);
 });
 
-const LMS_crawler = async (id, pw, semester) => {
+const LMS_crawler = async (semester) => {
   const knuLMS = "https://knulms.kongju.ac.kr";
   await subWindow.loadURL(knuLMS);
   await login();
   const subjectList = await get_subject_list();
-  console.log(subjectList);
   const result = [];
   for (i = 0; i < subjectList.length; i++) {
     result.push({
@@ -74,18 +71,15 @@ const LMS_crawler = async (id, pw, semester) => {
   return result;
 
   async function login() {
+    subWindow.show();
     await subWindow.loadURL(knuLMS + "/courses");
     const page = await pie.getPage(browser, subWindow);
-    await page.evaluate(
-      (id, pw) => {
-        document.querySelector('input[name="login_user_id"]').value = id;
-        document.querySelector('input[name="login_user_password"]').value = pw;
-      },
-      id,
-      pw
-    );
-    await page.click('div[class="login_btn"]');
-    await page.waitForSelector("#content > div.header-bar");
+    await page.waitForSelector("#content > div.header-bar", {
+      timeout: 999999,
+    });
+    await page.wait;
+    mainWindow.webContents.send("fromLogin", true);
+    subWindow.hide();
   }
 
   async function get_a_subject_data(url) {
@@ -107,7 +101,12 @@ const LMS_crawler = async (id, pw, semester) => {
             .indexOf("-") == -1
             ? true
             : false,
-        isFail = deadLine <= today && isDone == false ? true : false;
+        isFail =
+          deadLine.getMonth() == 0
+            ? false
+            : deadLine <= today && isDone == false
+            ? true
+            : false;
       subjectData.push({
         name: name,
         deadLine: deadLine,

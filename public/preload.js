@@ -12,9 +12,15 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
   receive: (channel, func) => {
-    let validChannels = ["fromMain"];
-    if (validChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, ...args) => func(...args));
+    switch (channel) {
+      case "fromLMS": {
+        ipcRenderer.on(channel, (event, ...args) => func(...args));
+        break;
+      }
+      case "fromLogin": {
+        ipcRenderer.on(channel, (event, ...args) => func(...args));
+        break;
+      }
     }
   },
 });
