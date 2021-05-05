@@ -12,10 +12,10 @@ function Subject(props) {
     const subject_item = _subjectList.data.map((_item) => {
       const state = _item.fail ? late : _item.done ? done : todo,
         state_ico = (
-          <img src={state} style={{ width: "20px", marginRight: "30px" }} />
+          <img src={state} style={{ width: "20px", marginRight: "15px" }} />
         ),
         deadLine =
-          _item.deadLine.getMonth() == 0
+          _item.deadLine == undefined
             ? ""
             : _item.deadLine.getFullYear() +
               "년" +
@@ -26,9 +26,21 @@ function Subject(props) {
               _item.deadLine.getHours() +
               ":" +
               _item.deadLine.getMinutes() +
-              "까지";
+              "까지",
+        textColor =
+          state == todo ? "#50AFEF" : state == late ? "#FF7B60" : "#C3C2C3",
+        textDecoration = state == todo ? "none" : "line-through";
+
       return (
-        <ListGroupItem tag="span" action style={{ background: "#F3F5F6" }}>
+        <ListGroupItem
+          tag="span"
+          action
+          style={{
+            background: "#F3F5F6",
+            color: { textColor },
+            textDecoration: { textDecoration },
+          }}
+        >
           {state_ico}
           {_item.name}
           <span style={{ float: "right" }}>{deadLine}</span>

@@ -79,7 +79,7 @@ const LMS_crawler = async (semester) => {
     });
     await page.wait;
     mainWindow.webContents.send("fromLogin", true);
-    subWindow.hide();
+    //subWindow.hide();
   }
 
   async function get_a_subject_data(url) {
@@ -102,7 +102,7 @@ const LMS_crawler = async (semester) => {
             ? true
             : false,
         isFail =
-          deadLine.getMonth() == 0
+          deadLine == undefined
             ? false
             : deadLine <= today && isDone == false
             ? true
@@ -139,16 +139,14 @@ const LMS_crawler = async (semester) => {
 
 const removeEmpty = (str) => str.replace(/\s/g, "");
 const dateFormater = (str) => {
-  const year = today.getFullYear();
   let strDate = removeEmpty(str);
   strDate = strDate.indexOf("오후") != -1 ? strDate + " PM" : strDate;
-  strDate =
-    year +
-    "-" +
-    strDate
-      .replace("월", "-")
-      .replace("일", "")
-      .replace("오후", " ")
-      .replace("까지", "");
-  return new Date(strDate);
+  strDate = strDate
+    .replace("월", "-")
+    .replace("일", "")
+    .replace("오후", " ")
+    .replace("까지", "");
+  const year = today.getFullYear(),
+    date = new Date(year + "-" + strDate);
+  return date.getMonth() == 0 ? undefined : date;
 };
