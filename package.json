@@ -1,5 +1,5 @@
 {
-  "name": "electron_react_quick_start",
+  "name": "knu-lms-scheduler",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -50,7 +50,7 @@
     "wait-on": "^5.3.0"
   },
   "build": {
-    "appId": "com.example.electron-app",
+    "appId": "com.knu-lms-scheduler",
     "files": [
       "build/**/*",
       "node_modules/**/*"

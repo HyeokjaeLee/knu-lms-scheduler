@@ -12,15 +12,6 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
   receive: (channel, func) => {
-    switch (channel) {
-      case "fromLMS": {
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
-        break;
-      }
-      case "fromLogin": {
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
-        break;
-      }
-    }
+    ipcRenderer.on(channel, (event, ...args) => func(...args));
   },
 });

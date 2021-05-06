@@ -16,19 +16,18 @@ function Subject(props) {
           if (_item.done == true) {
             done_count++;
           } else {
-            if (_item.deadLine != undefined && _item.fail == false) {
+            if (typeof _item.deadLine === "object" && _item.fail == false) {
               deadLineArr.push(_item.deadLine.getTime());
             }
           }
-
+          if (typeof _item.deadLine === "object") console.log(_item.deadLine);
           const state = _item.fail ? late : _item.done ? done : todo,
             state_ico = (
               <img src={state} style={{ width: "20px", marginRight: "15px" }} />
             ),
             deadLine =
-              _item.deadLine == undefined
-                ? ""
-                : _item.deadLine.getFullYear() +
+              typeof _item.deadLine === "object"
+                ? _item.deadLine.getFullYear() +
                   "년" +
                   (_item.deadLine.getMonth() + 1) +
                   "월" +
@@ -37,7 +36,8 @@ function Subject(props) {
                   _item.deadLine.getHours() +
                   ":" +
                   _item.deadLine.getMinutes() +
-                  "까지",
+                  "까지"
+                : "",
             textColor =
               state == todo ? "#50AFEF" : state == late ? "#FF7B60" : "#C3C2C3",
             textDecoration = state == todo ? "none" : "line-through";

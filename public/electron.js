@@ -4,155 +4,119 @@ const { ipcMain, BrowserWindow, app } = require("electron"),
   pie = require("puppeteer-in-electron"),
   puppeteer = require("puppeteer-core"),
   cheerio = require("cheerio"),
-  today = new Date();
+  today = new Date(),
+  removeEmpty = (str) => str.replace(/\s/g, ""),
+  dateFormater = (str) => {
+    let date = undefined;
+    if (str.indexOf("일") != -1) {
+      date = removeEmpty(str);
+      date = date.indexOf("오후") != -1 ? date + " PM" : date;
+      date = date
+        .replace("월", "-")
+        .replace("일", "")
+        .replace("오전", " ")
+        .replace("오후", " ")
+        .replace("까지", "");
+      date =
+        date.indexOf("년") != -1
+          ? date.replace("년", "-")
+          : today.getFullYear() + "-" + date;
+      date = new Date(date);
+    }
+    return date;
+  };
+let browser = (async () => {
+  // browser.pages is not a function 에러로 인한 선언형태
+  await pie.initialize(app);
+  browser = await pie.connect(app, puppeteer);
+})();
 
-let mainWindow; //실제 user가 조작하는 window
-let subWindow; //crawler가 작동하는 window
-let browser;
-async function createWindow() {
-  mainWindow = new BrowserWindow({
+app.on("ready", async () => {
+  const mainWin = new BrowserWindow({
     width: 1200,
     height: 1000,
-    show: false,
-    icon: "./KNU.png",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // use a preload script
     },
   });
-  mainWindow
-    .loadURL(
-      isDev
-        ? "http://localhost:3000"
-        : `file://${path.join(__dirname, "../build/index.html")}`
-    )
-    .then(
-      mainWindow.once("ready-to-show", () => {
-        mainWindow.show();
-      })
-    );
-
-  mainWindow.on("closed", () => (mainWindow = null));
-}
-
-app.on("ready", createWindow);
+  mainWin.loadURL(
+    isDev
+      ? "http://localhost:3000"
+      : `file://${path.join(__dirname, "../build/index.html")}`
+  );
+  ipcMain.on("toMain", async (event, semester) => {
+    const result = [];
+    const knuLMS = "https://knulms.kongju.ac.kr";
+    const subWin = new BrowserWindow({
+      width: 800,
+      height: 900,
+    });
+    let page = await pie.getPage(browser, subWin); //사람이 로그인하는동안 작동(선 배치 시 로그인 페이지 로딩 지연)
+    await subWin.loadURL(knuLMS + "/courses");
+    await page.waitForSelector("#content > div.header-bar", {
+      timeout: 60000, //로그인 대기 시간 1시간(1시간 이내 로그인 안할 시 오류 발생)
+    });
+    const subjectList = await (async () => {
+      const content = await page.content(),
+        $ = cheerio.load(content);
+      return $("#my_courses_table > tbody > tr")
+        .map((index, element) => {
+          const td = $(element).find("td"),
+            td1_a = $(element).find("td").eq(1).find("a");
+          return {
+            title: td1_a.attr("title"),
+            url: td1_a.attr("href"),
+          };
+        })
+        .get();
+    })();
+    const subjectCount = subjectList.length;
+    mainWin.webContents.send("fromLogin", subjectCount);
+    subWin.hide();
+    const get_a_subject_data = async (url) => {
+      await subWin.loadURL(`${knuLMS + url}/grades`);
+      const content = await page.content();
+      const $ = cheerio.load(content);
+      return $("#grades_summary > tbody > .student_assignment.editable")
+        .map((index, element) => {
+          const deadLine = dateFormater($(element).find("td.due").text()),
+            name = $(element).find("th > a").text(),
+            isDone =
+              $(element)
+                .find("td.assignment_score > div > span > span")
+                .text()
+                .indexOf("-") == -1
+                ? true
+                : false,
+            isFail =
+              deadLine == undefined
+                ? false
+                : deadLine <= today && isDone == false
+                ? true
+                : false;
+          return {
+            name: name,
+            deadLine: deadLine,
+            done: isDone,
+            fail: isFail,
+          };
+        })
+        .get();
+    };
+    page = await pie.getPage(browser, subWin); //초기화
+    for (i = 0; i < subjectList.length; i++) {
+      mainWin.webContents.send("fromCrawler", i);
+      result.push({
+        title: subjectList[i].title,
+        url: knuLMS + subjectList[i].url + "/external_tools/1",
+        data: await get_a_subject_data(subjectList[i].url),
+      });
+    }
+    mainWin.webContents.send("fromLMS", result);
+    subWin.close();
+  });
+});
 
 app.on("window-all-closed", () => {
   app.quit();
 });
-
-app.on("activate", () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
-});
-
-(async () => {
-  await pie.initialize(app);
-  browser = await pie.connect(app, puppeteer);
-  subWindow = new BrowserWindow({
-    width: 800,
-    height: 900,
-    show: false,
-  });
-})();
-
-ipcMain.on("toMain", async (event, semester) => {
-  const lms_data = await LMS_crawler(semester);
-  mainWindow.webContents.send("fromLMS", lms_data);
-});
-
-const LMS_crawler = async (semester) => {
-  const knuLMS = "https://knulms.kongju.ac.kr";
-  subWindow.loadURL(knuLMS);
-  await login();
-  const subjectList = await get_subject_list();
-  const result = [];
-  for (i = 0; i < subjectList.length; i++) {
-    result.push({
-      title: subjectList[i].title,
-      url: knuLMS + subjectList[i].url + "/external_tools/1",
-      data: await get_a_subject_data(subjectList[i].url),
-    });
-  }
-  subWindow.close();
-  return result;
-
-  async function login() {
-    subWindow.show();
-    const page = await pie.getPage(browser, subWindow);
-    await subWindow.loadURL(knuLMS + "/courses");
-    await page.waitForSelector("#content > div.header-bar", {
-      timeout: 999999,
-    });
-    subWindow.hide();
-    mainWindow.webContents.send("fromLogin", true);
-  }
-
-  async function get_a_subject_data(url) {
-    await subWindow.loadURL(`${knuLMS + url}/grades`);
-    const page = await pie.getPage(browser, subWindow);
-    const content = await page.content();
-    const $ = cheerio.load(content);
-    const taskSelector = $(
-      "#grades_summary > tbody > .student_assignment.editable"
-    );
-    const subjectData = [];
-    taskSelector.map((index, element) => {
-      const deadLine = dateFormater($(element).find("td.due").text()),
-        name = $(element).find("th > a").text(),
-        isDone =
-          $(element)
-            .find("td.assignment_score > div > span > span")
-            .text()
-            .indexOf("-") == -1
-            ? true
-            : false,
-        isFail =
-          deadLine == undefined
-            ? false
-            : deadLine <= today && isDone == false
-            ? true
-            : false;
-      subjectData.push({
-        name: name,
-        deadLine: deadLine,
-        done: isDone,
-        fail: isFail,
-      });
-    });
-    return subjectData;
-  }
-
-  async function get_subject_list() {
-    await subWindow.loadURL(knuLMS + "/courses");
-    const result = [];
-    const page = await pie.getPage(browser, subWindow);
-    const content = await page.content();
-    const $ = cheerio.load(content);
-    const trCount = $("#my_courses_table > tbody").find("tr").length;
-    const infoDir = (eq1, eq2) =>
-      $("#my_courses_table > tbody").find("tr").eq(eq1).find("td").eq(eq2);
-    for (i = 1; i < trCount; i++) {
-      result.push({
-        title: infoDir(i, 1).find("a").attr("title"),
-        url: infoDir(i, 1).find("a").attr("href"),
-        semester: removeEmpty(infoDir(i, 3).text()),
-      });
-    }
-    return result.filter((data) => data.semester == semester);
-  }
-};
-
-const removeEmpty = (str) => str.replace(/\s/g, "");
-const dateFormater = (str) => {
-  let strDate = removeEmpty(str);
-  strDate = strDate.indexOf("오후") != -1 ? strDate + " PM" : strDate;
-  strDate = strDate
-    .replace("월", "-")
-    .replace("일", "")
-    .replace("오후", " ")
-    .replace("까지", "");
-  const year = today.getFullYear(),
-    date = new Date(year + "-" + strDate);
-  return date.getMonth() == 0 ? undefined : date;
-};
