@@ -3,13 +3,22 @@ import "./App.css";
 import img from "./img/KNU.png";
 import Login from "./components/login";
 import Subject from "./components/subject";
-import { Spinner, ListGroup, ListGroupItem } from "reactstrap";
+import { Spinner } from "reactstrap";
 
 function App() {
   const [login, setLogin] = useState(<Login />);
   const [view, setView] = useState(<></>);
   window.api.receive("fromLogin", (data) => {
-    setLogin(<Spinner type="grow" color="primary" />);
+    setLogin(
+      <>
+        <span>
+          LMS 정보를 불러오는 중입니다.
+          <br />
+          잠시만 기다려주세요.{" ( 예상시간 : 1분 )"}
+        </span>
+        <Spinner type="grow" color="secondary" style={{ margin: "5vh" }} />
+      </>
+    );
   });
   window.api.receive("fromLMS", (data) => {
     setLogin(<></>);
@@ -23,8 +32,8 @@ function App() {
       </h1>
       {login}
       {view}
-      <footer style={{ height: "10vh" }}>
-        <hr />
+      <footer style={{ height: "5vh", marginTop: "30px", color: "#C0C2C3" }}>
+        HyeokjaeLee © All rights reserved.
       </footer>
     </div>
   );

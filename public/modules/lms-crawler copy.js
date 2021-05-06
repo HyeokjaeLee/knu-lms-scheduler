@@ -63,7 +63,7 @@ ipcMain.on("toMain", async (event, semester) => {
 
 const LMS_crawler = async (semester) => {
   const knuLMS = "https://knulms.kongju.ac.kr";
-  subWindow.loadURL(knuLMS);
+  await subWindow.loadURL(knuLMS);
   await login();
   const subjectList = await get_subject_list();
   const result = [];
@@ -79,8 +79,8 @@ const LMS_crawler = async (semester) => {
 
   async function login() {
     subWindow.show();
-    const page = await pie.getPage(browser, subWindow);
     await subWindow.loadURL(knuLMS + "/courses");
+    const page = await pie.getPage(browser, subWindow);
     await page.waitForSelector("#content > div.header-bar", {
       timeout: 999999,
     });
