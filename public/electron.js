@@ -58,16 +58,18 @@ app.on("ready", async () => {
     await page.waitForSelector("#content > div.header-bar", {
       timeout: 60000, //로그인 대기 시간 1시간(1시간 이내 로그인 안할 시 오류 발생)
     });
-    const subjectList = await (async () => {
-      const content = await page.content(),
-        $ = cheerio.load(content);
-      return $("#my_courses_table > tbody > tr")
-        .map((index, element) => ({
-          title: $(element).find("td").eq(1).find("a").attr("title"),
-          url: $(element).find("td").eq(1).find("a").attr("href"),
-        }))
-        .get();
-    })();
+    const subjectList = (
+      await (async () => {
+        const content = await page.content(),
+          $ = cheerio.load(content);
+        return $("#my_courses_table > tbody > tr")
+          .map((index, element) => ({
+            title: $(element).find("td").eq(1).find("a").attr("title"),
+            url: $(element).find("td").eq(1).find("a").attr("href"),
+          }))
+          .get();
+      })()
+    ).filter((_subject) => typeof _subject.url === "string");
     const subjectCount = subjectList.length;
     mainWin.webContents.send("fromLogin", subjectCount);
     subWin.hide();
@@ -101,9 +103,9 @@ app.on("ready", async () => {
         })
         .get();
     };
+    page = await pie.getPage(browser, subWin); //초기화(없으면 오류남)
     //하나의 subWin을 공유하기 때문에 병렬처리 하면 오류발생(map, forEach 사용 불가)
     for (i = 0; i < subjectList.length; i++) {
-      page = await pie.getPage(browser, subWin); //초기화(없으면 오류남)
       result.push({
         title: subjectList[i].title,
         url: knuLMS + subjectList[i].url + "/external_tools/1",
@@ -111,11 +113,10 @@ app.on("ready", async () => {
       });
       mainWin.webContents.send("fromCrawler", i + 1);
     }
-    mainWin.webContents.send("fromLMS", result);
     subWin.close();
+    mainWin.webContents.send("fromLMS", result);
   });
 });
-
 app.on("window-all-closed", () => {
   app.quit();
 });
