@@ -1,12 +1,19 @@
 import React, { Component, useState } from "react";
 import "./App.css";
 import img from "./img/KNU.png";
-import Login from "./components/login";
 import Subject from "./components/subject";
 import { Progress } from "reactstrap";
 
 function App() {
-  const [view, setView] = useState(<Login />);
+  const [view, setView] = useState(
+    <button
+      className="login"
+      onClick={() => window.api.send("toMain")}
+      style={{ marginTop: "5vh" }}
+    >
+      Sign in
+    </button>
+  );
   const [progress, setProgress] = useState(0);
   const [progressState, setProgressState] = useState("hidden");
   let subjectCount;

@@ -44,15 +44,17 @@ app.on("ready", async () => {
       ? "http://localhost:3000"
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
+  //Front 에서 toMain 채널로 정보 전달 시 실행
   ipcMain.on("toMain", async (event, semester) => {
-    const result = [];
-    const knuLMS = "https://knulms.kongju.ac.kr";
-    const subWin = new BrowserWindow({
-      width: 800,
-      height: 900,
-    });
-    let page = await pie.getPage(browser, subWin); //사람이 로그인하는동안 작동(선 배치 시 로그인 페이지 로딩 지연)
+    const result = [],
+      knuLMS = "https://knulms.kongju.ac.kr",
+      subWin = new BrowserWindow({
+        width: 800,
+        height: 900,
+      });
+
     await subWin.loadURL(knuLMS + "/courses");
+    let page = await pie.getPage(browser, subWin); //사람이 로그인하는동안 작동(선 배치 시 로그인 페이지 로딩 지연)
     await page.waitForSelector("#content > div.header-bar", {
       timeout: 60000, //로그인 대기 시간 1시간(1시간 이내 로그인 안할 시 오류 발생)
     });
@@ -60,14 +62,10 @@ app.on("ready", async () => {
       const content = await page.content(),
         $ = cheerio.load(content);
       return $("#my_courses_table > tbody > tr")
-        .map((index, element) => {
-          const td = $(element).find("td"),
-            td1_a = $(element).find("td").eq(1).find("a");
-          return {
-            title: td1_a.attr("title"),
-            url: td1_a.attr("href"),
-          };
-        })
+        .map((index, element) => ({
+          title: $(element).find("td").eq(1).find("a").attr("title"),
+          url: $(element).find("td").eq(1).find("a").attr("href"),
+        }))
         .get();
     })();
     const subjectCount = subjectList.length;
@@ -75,8 +73,8 @@ app.on("ready", async () => {
     subWin.hide();
     const get_a_subject_data = async (url) => {
       await subWin.loadURL(`${knuLMS + url}/grades`);
-      const content = await page.content();
-      const $ = cheerio.load(content);
+      const content = await page.content(),
+        $ = cheerio.load(content);
       return $("#grades_summary > tbody > .student_assignment.editable")
         .map((index, element) => {
           const deadLine = dateFormater($(element).find("td.due").text()),
@@ -103,9 +101,10 @@ app.on("ready", async () => {
         })
         .get();
     };
-    page = await pie.getPage(browser, subWin); //초기화
+    page = await pie.getPage(browser, subWin); //초기화(없으면 오류남)
+    //하나의 subWin을 공유하기 때문에 병렬처리 하면 오류발생(map, forEach 사용 불가)
     for (i = 0; i < subjectList.length; i++) {
-      mainWin.webContents.send("fromCrawler", i);
+      mainWin.webContents.send("fromCrawler", i + 1);
       result.push({
         title: subjectList[i].title,
         url: knuLMS + subjectList[i].url + "/external_tools/1",
