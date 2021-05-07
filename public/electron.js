@@ -101,15 +101,15 @@ app.on("ready", async () => {
         })
         .get();
     };
-    page = await pie.getPage(browser, subWin); //초기화(없으면 오류남)
     //하나의 subWin을 공유하기 때문에 병렬처리 하면 오류발생(map, forEach 사용 불가)
     for (i = 0; i < subjectList.length; i++) {
-      mainWin.webContents.send("fromCrawler", i + 1);
+      page = await pie.getPage(browser, subWin); //초기화(없으면 오류남)
       result.push({
         title: subjectList[i].title,
         url: knuLMS + subjectList[i].url + "/external_tools/1",
         data: await get_a_subject_data(subjectList[i].url),
       });
+      mainWin.webContents.send("fromCrawler", i + 1);
     }
     mainWin.webContents.send("fromLMS", result);
     subWin.close();
