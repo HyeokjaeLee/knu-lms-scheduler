@@ -3,7 +3,7 @@
 
 > 공주대학교 온라인 강의 시스템의 사용자 편의성 향상을 위한 프로그램
 
-![JAVASCRIPT](https://img.shields.io/badge/Javascript-F7DF1E?style=flat-square&logo=Javascript&logoColor=black) ![NODE](https://img.shields.io/badge/Node.js-339933?style=flat-&logo=Node.js&logoColor=white) ![ELECTRON](https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=Electron&logoColor=white) ![REACT](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) ![PUPPETEER](https://img.shields.io/badge/Puppeteer-40B5A4?style=flat-square&logo=Puppeteer&logoColor=white) ![BOOTSTRAP](https://img.shields.io/badge/Bootstrap-7952b3?style=flat-square&logo=Bootstrap&logoColor=white)
+![JAVASCRIPT](https://img.shields.io/badge/Javascript-F7DF1E?style=flat-square&logo=Javascript&logoColor=black) ![NODE](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=Node.js&logoColor=white) ![ELECTRON](https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=Electron&logoColor=white) ![REACT](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) ![PUPPETEER](https://img.shields.io/badge/Puppeteer-40B5A4?style=flat-square&logo=Puppeteer&logoColor=white) ![BOOTSTRAP](https://img.shields.io/badge/Bootstrap-7952b3?style=flat-square&logo=Bootstrap&logoColor=white)
 
 ### [:cyclone: Download](https://github.com/HyeokjaeLee/knu-lms-scheduler/releases)
 
