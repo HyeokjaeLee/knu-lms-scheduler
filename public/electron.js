@@ -51,13 +51,15 @@ app.on("ready", async () => {
       subWin = new BrowserWindow({
         width: 800,
         height: 900,
+        show: false,
       });
-
-    await subWin.loadURL(knuLMS + "/courses");
     let page = await pie.getPage(browser, subWin); //사람이 로그인하는동안 작동(선 배치 시 로그인 페이지 로딩 지연)
+    await subWin.loadURL(knuLMS + "/courses");
+    subWin.show();
     await page.waitForSelector("#content > div.header-bar", {
       timeout: 60000, //로그인 대기 시간 1시간(1시간 이내 로그인 안할 시 오류 발생)
     });
+    subWin.hide();
     const subjectList = (
       await (async () => {
         const content = await page.content(),
@@ -72,7 +74,6 @@ app.on("ready", async () => {
     ).filter((_subject) => typeof _subject.url === "string");
     const subjectCount = subjectList.length;
     mainWin.webContents.send("fromLogin", subjectCount);
-    subWin.hide();
     const get_a_subject_data = async (url) => {
       await subWin.loadURL(`${knuLMS + url}/grades`);
       const content = await page.content(),
