@@ -1,6 +1,6 @@
 {
   "name": "knu-lms-scheduler",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "dependencies": {
     "bootstrap": "^4.6.0",

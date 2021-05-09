@@ -33,26 +33,30 @@ let browser = (async () => {
 
 app.on("ready", async () => {
   const mainWin = new BrowserWindow({
-    width: 1200,
-    height: 1000,
+    minWidth: 1200,
+    minHeight: 1000,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // use a preload script
     },
   });
+  mainWin.setMenu(null);
   mainWin.loadURL(
     isDev
       ? "http://localhost:3000"
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
   //Front 에서 toMain 채널로 정보 전달 시 실행
-  ipcMain.on("toMain", async (event, semester) => {
+  ipcMain.on("toMain", async () => {
     const result = [],
       knuLMS = "https://knulms.kongju.ac.kr",
       subWin = new BrowserWindow({
         width: 800,
         height: 900,
         show: false,
+        resizable: false,
       });
+    subWin.setMenu(null);
+
     let page = await pie.getPage(browser, subWin); //사람이 로그인하는동안 작동(선 배치 시 로그인 페이지 로딩 지연)
     await subWin.loadURL(knuLMS + "/courses");
     subWin.show();

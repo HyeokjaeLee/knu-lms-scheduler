@@ -15,12 +15,12 @@ function Subject(props) {
         subject_item = _subjectList.data.map((_item) => {
           if (_item.done == true) {
             done_count++;
-          } else {
-            if (typeof _item.deadLine === "object" && _item.fail == false) {
-              deadLineArr.push(_item.deadLine.getTime());
-            }
+          } else if (
+            typeof _item.deadLine === "object" &&
+            _item.fail == false
+          ) {
+            deadLineArr.push(_item.deadLine.getTime());
           }
-          if (typeof _item.deadLine === "object") console.log(_item.deadLine);
           const state = _item.fail ? late : _item.done ? done : todo,
             state_ico = (
               <img src={state} style={{ width: "20px", marginRight: "15px" }} />

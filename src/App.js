@@ -2,7 +2,7 @@ import React, { Component, useState } from "react";
 import "./App.css";
 import img from "./img/KNU.png";
 import Subject from "./components/subject";
-import { Progress } from "reactstrap";
+import Loading from "./components/loading";
 
 function App() {
   const [view, setView] = useState(
@@ -14,28 +14,14 @@ function App() {
       Sign in
     </button>
   );
-  const [progress, setProgress] = useState(0);
-  const [progressState, setProgressState] = useState("hidden");
-  let subjectCount;
-  window.api.receive("fromLogin", (data) => {
-    subjectCount = data;
-    setProgressState("visible");
-    setView(
-      <>
-        <span>
-          LMS 정보를 불러오는 중입니다.
-          <br />
-          잠시만 기다려주세요.{" ( 예상시간 : 1분 )"}
-        </span>
-      </>
-    );
-  });
-  window.api.receive("fromCrawler", (data) => {
-    setProgress((data / subjectCount) * 100);
+  window.api.receive("fromLogin", (subjectCount) => {
+    setView(<Loading subjectCount={subjectCount} />);
   });
   window.api.receive("fromLMS", (data) => {
-    setProgressState("hidden");
-    setView(<Subject subjectList={data} />);
+    const Contents = <Subject subjectList={data} />;
+    setInterval(() => {
+      setView(Contents);
+    }, 1000);
   });
 
   return (
@@ -45,16 +31,6 @@ function App() {
         LMS 스케줄러
       </h1>
       {view}
-      <Progress
-        striped
-        color="success"
-        value={progress}
-        style={{
-          width: "50%",
-          marginTop: "5vh",
-          visibility: progressState,
-        }}
-      />
       <footer style={{ height: "5vh", marginTop: "30px", color: "#C0C2C3" }}>
         HyeokjaeLee © All rights reserved.
       </footer>
