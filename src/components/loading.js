@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Progress } from "reactstrap";
 function Loading(props) {
   const subjectCount = props.subjectCount,
-    [leftSec, setLeftSec] = useState(subjectCount * 3),
     [subjectNum, setSubjectNum] = useState(0);
 
   window.api.receive("fromCrawler", (subjectNum) => {

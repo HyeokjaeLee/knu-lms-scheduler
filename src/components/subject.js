@@ -74,11 +74,7 @@ function Subject(props) {
             : "#C0C2C3";
       return (
         <>
-          <ListGroupItem
-            tag="a"
-            action
-            style={{ textAlign: "left", borderRadius: "5px" }}
-          >
+          <ListGroupItem tag="a" action style={{ textAlign: "left" }}>
             <a
               href="#"
               id={id}

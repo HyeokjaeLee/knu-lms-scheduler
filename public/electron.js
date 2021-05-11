@@ -45,6 +45,9 @@ app.on("ready", async () => {
       ? "http://localhost:3000"
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
+  mainWin.on("close", () => {
+    app.quit();
+  });
   //Front 에서 toMain 채널로 정보 전달 시 실행
   ipcMain.on("toMain", async () => {
     const result = [],
@@ -56,7 +59,6 @@ app.on("ready", async () => {
         resizable: false,
       });
     subWin.setMenu(null);
-
     let page = await pie.getPage(browser, subWin); //사람이 로그인하는동안 작동(선 배치 시 로그인 페이지 로딩 지연)
     await subWin.loadURL(knuLMS + "/courses");
     subWin.show();
