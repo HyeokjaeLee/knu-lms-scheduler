@@ -21,7 +21,7 @@ function App() {
     const Contents = <Subject subjectList={data} />;
     setInterval(() => {
       setView(Contents);
-    }, 1000);
+    }, 300);
   });
 
   return (

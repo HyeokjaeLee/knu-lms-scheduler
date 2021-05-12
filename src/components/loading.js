@@ -16,6 +16,7 @@ function Loading(props) {
       </sapn>
       <span>{` ( 예상시간 : ${(subjectCount - subjectNum) * 3}초 )`}</span>
       <Progress
+        animated
         striped
         color="success"
         value={(subjectNum / subjectCount) * 100}
