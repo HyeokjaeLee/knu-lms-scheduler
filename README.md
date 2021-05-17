@@ -1,5 +1,4 @@
 ![header](https://capsule-render.vercel.app/api?type=rect&color=gradient&height=100&section=header&text=KNU%20LMS%20Scheduler&fontSize=30&fontAlign=73&fontAlignY=50)
-![VERSION](https://img.shields.io/github/v/release/HyeokjaeLee/knu-lms-scheduler) ![DOWNLOADS](https://img.shields.io/github/downloads/HyeokjaeLee/knu-lms-scheduler/total)
 
 > 공주대학교 온라인 강의시스템 편의성 향상 프로그램
 
