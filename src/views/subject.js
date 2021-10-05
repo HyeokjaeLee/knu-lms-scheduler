@@ -1,8 +1,8 @@
 import React from "react";
-import shortcut from "../img/Shortcut.png";
-import done from "../img/done.png";
-import late from "../img/late.png";
-import todo from "../img/todo.png";
+import shortcut from "../assets/img/Shortcut.png";
+import done from "../assets/img/done.png";
+import late from "../assets/img/late.png";
+import todo from "../assets/img/todo.png";
 import { ListGroup, ListGroupItem, UncontrolledCollapse } from "reactstrap";
 function Subject(props) {
   const today = new Date(),
@@ -15,16 +15,11 @@ function Subject(props) {
         subject_item = _subjectList.data.map((_item) => {
           if (_item.done == true) {
             done_count++;
-          } else if (
-            typeof _item.deadLine === "object" &&
-            _item.fail == false
-          ) {
+          } else if (typeof _item.deadLine === "object" && _item.fail == false) {
             deadLineArr.push(_item.deadLine.getTime());
           }
           const state = _item.fail ? late : _item.done ? done : todo,
-            state_ico = (
-              <img src={state} style={{ width: "20px", marginRight: "15px" }} />
-            ),
+            state_ico = <img src={state} style={{ width: "20px", marginRight: "15px" }} />,
             deadLine =
               typeof _item.deadLine === "object"
                 ? _item.deadLine.getFullYear() +
@@ -38,8 +33,7 @@ function Subject(props) {
                   _item.deadLine.getMinutes() +
                   "까지"
                 : "",
-            textColor =
-              state == todo ? "#50AFEF" : state == late ? "#FF7B60" : "#C3C2C3",
+            textColor = state == todo ? "#50AFEF" : state == late ? "#FF7B60" : "#C3C2C3",
             textDecoration = state == todo ? "none" : "line-through";
           return (
             <ListGroupItem
@@ -61,37 +55,19 @@ function Subject(props) {
           deadLineArr.length == 0
             ? "완료"
             : Math.round(
-                ((Math.min.apply(null, deadLineArr) - today.getTime()) /
-                  (1000 * 60 * 60 * 24)) *
-                  10
+                ((Math.min.apply(null, deadLineArr) - today.getTime()) / (1000 * 60 * 60 * 24)) * 10
               ) / 10,
         comment = near_deadLine == "완료" ? "" : "일",
         deadLineColor =
-          near_deadLine == "완료"
-            ? "#1FE560"
-            : near_deadLine <= 7
-            ? "#FF7B60"
-            : "#C0C2C3";
+          near_deadLine == "완료" ? "#1FE560" : near_deadLine <= 7 ? "#FF7B60" : "#C0C2C3";
       return (
         <>
           <ListGroupItem tag="a" action style={{ textAlign: "left" }}>
-            <a
-              href="#"
-              id={id}
-              style={{ textDecoration: "none", color: "black" }}
-            >
+            <a href="#" id={id} style={{ textDecoration: "none", color: "black" }}>
               {_subjectList.title}
             </a>
-            <a
-              href={_subjectList.url}
-              target="_blank"
-              style={{ float: "right" }}
-            >
-              <img
-                src={shortcut}
-                style={{ width: "20px" }}
-                href={_subjectList.url}
-              />
+            <a href={_subjectList.url} target="_blank" style={{ float: "right" }}>
+              <img src={shortcut} style={{ width: "20px" }} href={_subjectList.url} />
             </a>
             <span
               style={{
@@ -106,10 +82,7 @@ function Subject(props) {
             >
               {near_deadLine + comment}
             </span>
-            <img
-              src={todo}
-              style={{ width: "20px", marginRight: "10px", float: "right" }}
-            />
+            <img src={todo} style={{ width: "20px", marginRight: "10px", float: "right" }} />
             <span
               style={{
                 float: "right",
