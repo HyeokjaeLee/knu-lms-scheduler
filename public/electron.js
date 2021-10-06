@@ -17,14 +17,12 @@ const { ipcMain, BrowserWindow, app } = require("electron"),
         .replace("오전", " ")
         .replace("오후", " ")
         .replace("까지", "");
-      date =
-        date.indexOf("년") != -1
-          ? date.replace("년", "-")
-          : today.getFullYear() + "-" + date;
+      date = date.indexOf("년") != -1 ? date.replace("년", "-") : today.getFullYear() + "-" + date;
       date = new Date(date);
     }
     return date;
   };
+console.log("test");
 let browser = (async () => {
   // browser.pages is not a function 에러로 인한 선언형태
   await pie.initialize(app);
@@ -34,28 +32,37 @@ let browser = (async () => {
 app.on("ready", async () => {
   const mainWin = new BrowserWindow({
     minWidth: 1200,
-    minHeight: 1000,
+    minHeight: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // use a preload script
     },
   });
-  mainWin.setMenu(null);
-  mainWin.loadURL(
-    isDev
-      ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "../build/index.html")}`
-  );
+
+  //개발 메뉴 활성화 및 로컬호스팅 주소 설정
+  if (isDev) {
+    mainWin.loadURL("http://localhost:3000");
+  } else {
+    mainWin.setMenu(null);
+    mainWin.loadURL(`file://${path.join(__dirname, "../build/index.html")}`);
+  }
+
   mainWin.on("close", () => {
     app.quit();
   });
+
+  ipcMain.on("loginInfo", async (event, data) => {
+    console.log(data);
+    console.log("login");
+  });
+
   //Front 에서 toMain 채널로 정보 전달 시 실행
   ipcMain.on("toMain", async () => {
     const result = [],
       knuLMS = "https://knulms.kongju.ac.kr",
       subWin = new BrowserWindow({
         width: 800,
-        height: 900,
-        show: false,
+        height: 800,
+        show: true,
         resizable: false,
       });
     subWin.setMenu(null);
@@ -89,18 +96,11 @@ app.on("ready", async () => {
           const deadLine = dateFormater($(element).find("td.due").text()),
             name = $(element).find("th > a").text(),
             isDone =
-              $(element)
-                .find("td.assignment_score > div > span > span")
-                .text()
-                .indexOf("-") == -1
+              $(element).find("td.assignment_score > div > span > span").text().indexOf("-") == -1
                 ? true
                 : false,
             isFail =
-              deadLine == undefined
-                ? false
-                : deadLine <= today && isDone == false
-                ? true
-                : false;
+              deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false;
           return {
             name: name,
             deadLine: deadLine,

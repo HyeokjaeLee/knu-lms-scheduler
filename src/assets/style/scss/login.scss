@@ -1,0 +1,33 @@
+@import "./libs/vars";
+.login-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.logo {
+  width: 7em;
+}
+
+.title {
+  font-size: 1.2em;
+  font-weight: 900;
+  margin-bottom: 3em;
+}
+
+.login-input {
+  font-size: 1.2em;
+  border: none;
+  border-bottom: 3px solid $subTxtColor;
+  margin-bottom: 2em;
+  outline: none;
+  padding: 0.5em;
+}
+
+.login-button {
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  border: none;
+  background-color: $subTxtColor;
+  color: $bgColor;
+}
