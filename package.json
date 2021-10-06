@@ -68,7 +68,11 @@
       "node_modules/**/*"
     ],
     "win": {
-      "icon": "./src/img/lms.png"
+      "icon": "./src/assets/img/lms.png"
+    },
+    "mac": {
+      "icon": "./src/assets/img/lms.png",
+      "category": "public.app-category.utilities"
     }
   }
 }
