@@ -26,6 +26,7 @@ const removeEmpty = (str) => str.replace(/\s/g, ""),
 const url = "https://knulms.kongju.ac.kr";
 const basePath = `${app.getPath("appData")}/KNULMS/`;
 const loginInfoPath = basePath + "loginInfo.json";
+
 let browser = (async () => {
   // browser.pages is not a function 에러로 인한 선언형태
   await pie.initialize(app);
@@ -39,27 +40,29 @@ let mainWin, crawlerWin, crawlerPage;
 const main = async () => {
   mainWin = await createMainWin();
 
+  let savedLoginInfo;
   /*저장된 로그인 정보가 있다면 로그인 정보를 불러옴*/
   if (fs.existsSync(loginInfoPath)) {
-    const loginInfo = JSON.parse(fs.readFileSync(loginInfoPath));
-    mainWin.webContents.send("loginInfo", loginInfo);
+    savedLoginInfo = JSON.parse(fs.readFileSync(loginInfoPath));
+    mainWin.webContents.send("loginInfo", savedLoginInfo);
   }
 
   /*로그인 시도 후 실행*/
   ipcMain.on("loginInfo", async (event, loginInfo) => {
-    crawlerWin = new BrowserWindow({
-      width: 800,
-      height: 800,
-      show: true,
-      resizable: false,
-    });
+    if (await login(loginInfo)) {
+      mainWin.webContents.send("loginSuccess");
+      if (savedLoginInfo.id === loginInfo.id && savedLoginInfo.pw === loginInfo.pw) {
+        console.log("same");
+      } else {
+        console.log("dif");
+      }
+      const subjectList = await get_subject_list();
+      const test = await Promise.all(subjectList.map((subject) => get_subject_info(subject)));
 
-    //개발자 옵션 활성화
-    isDev && crawlerWin.show();
-
-    crawlerPage = await pie.getPage(browser, crawlerWin);
-    const isLogin = await login(loginInfo);
-    console.log(isLogin);
+      console.log(test);
+    } else {
+      mainWin.webContents.send("loginFail");
+    }
   });
 };
 
@@ -92,35 +95,109 @@ function createMainWin() {
   });
 }
 
+async function create_sub_win() {
+  const window = new BrowserWindow({
+    width: 800,
+    height: 800,
+    show: true,
+    resizable: false,
+  });
+  isDev && window.show();
+  const page = await pie.getPage(browser, window);
+  return { win: window, page: page };
+}
+
 async function login(loginInfo) {
-  crawlerPage = await pie.getPage(browser, crawlerWin);
-  await crawlerWin.loadURL(url + "/courses");
+  const { win, page } = await create_sub_win();
+  await win.loadURL(url + "/courses");
   //id 입력
-  await crawlerPage.focus("#login_user_id");
-  await crawlerPage.keyboard.type(loginInfo.id);
+  await page.focus("#login_user_id");
+  await page.keyboard.type(loginInfo.id);
   //password 입력
-  await crawlerPage.focus("#login_user_password");
-  await crawlerPage.keyboard.type(loginInfo.password);
-  await crawlerPage.click("#form1 > div.login_btn > a");
-  try {
-    await crawlerPage.waitForSelector("#content > div.header-bar", {
-      timeout: 500,
+  await page.focus("#login_user_password");
+  await page.keyboard.type(loginInfo.password);
+  await page.click("#form1 > div.login_btn > a");
+  const isLogin = await (() => {
+    return new Promise((resolve, reject) => {
+      //로그인 성공
+      page
+        .waitForSelector("#content > div.header-bar", {
+          timeout: 60000,
+        })
+        .then(() => {
+          loginInfo.keep
+            ? fs.writeFileSync(loginInfoPath, JSON.stringify(loginInfo))
+            : fs.unlinkSync(loginInfoPath);
+          resolve(true);
+        });
+      //로그인 실패
+      page
+        .waitForSelector(".content > div.error", {
+          timeout: 60000,
+        })
+        .then(() => {
+          resolve(false);
+        });
     });
-    //로그인 성공 시 사용자가 정보 저장을 원하면 저장, 아니면 삭제
-    loginInfo.keep
-      ? fs.writeFileSync(loginInfoPath, JSON.stringify(loginInfo))
-      : fs.unlinkSync(loginInfoPath);
-    return true;
-  } catch (e) {
-    mainWin.webContents.send("loginFail");
-    crawlerWin.close();
-    return false;
-  }
+  })();
+  win.close();
+  return isLogin;
 }
 
 main();
 
-/*
+async function get_subject_list() {
+  const { win, page } = await create_sub_win();
+  await win.loadURL(url + "/courses");
+  const content = await page.content(),
+    $ = cheerio.load(content);
+  const subjectList = $("#my_courses_table > tbody > tr")
+    .map((index, element) => ({
+      star: String($(element).find("td").eq(0).find("i").attr("class")).includes("light")
+        ? false
+        : true,
+      title: $(element).find("td").eq(1).find("a").attr("title"),
+      url: $(element).find("td").eq(1).find("a").attr("href"),
+    }))
+    .get()
+    .filter((subject) => subject.star && typeof subject.title === "string");
+
+  win.close();
+  return subjectList;
+}
+
+async function get_subject_info(subject) {
+  const { win, page } = await create_sub_win();
+  await win.loadURL(url + subject.url + "/grades");
+  const content = await page.content(),
+    $ = cheerio.load(content);
+  const subjectData = $("#grades_summary > tbody > .student_assignment.editable")
+    .map((index, element) => {
+      const deadLine = dateFormater($(element).find("td.due").text()),
+        name = $(element).find("th > a").text(),
+        isDone =
+          $(element).find("td.assignment_score > div > span > span").text().indexOf("-") == -1
+            ? true
+            : false,
+        isFail =
+          deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false;
+      return {
+        name: name,
+        deadLine: deadLine,
+        done: isDone,
+        fail: isFail,
+      };
+    })
+    .get();
+  win.close();
+  return {
+    title: subject.title,
+    url: subject.url,
+    data: subjectData,
+  };
+}
+
+function crawlerBackup() {
   //Front 에서 toMain 채널로 정보 전달 시 실행
   ipcMain.on("toMain", async () => {
     const result = [],
@@ -188,4 +265,5 @@ main();
     }
     subWin.close();
     mainWin.webContents.send("fromLMS", result);
-  }); */
+  });
+}
