@@ -9,6 +9,19 @@
   font-size: 1em;
 }
 
+.logo {
+  width: 6em;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
+  font-weight: 900;
+}
+
 .view-wrap {
   display: flex;
   width: 100%;
@@ -52,4 +65,24 @@
     height: 1.2em;
     cursor: pointer;
   }
+}
+.loading-wrap {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  .subject-loading {
+    width: 50%;
+    color: black;
+  }
+  &.show {
+    display: flex;
+  }
+}
+
+.show {
+  display: block;
+}
+.hide {
+  display: none;
 }

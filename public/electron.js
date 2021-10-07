@@ -35,7 +35,7 @@ let browser = (async () => {
 
 !fs.existsSync(basePath) && fs.mkdirSync(basePath);
 
-let mainWin, crawlerWin, crawlerPage;
+let mainWin;
 
 const main = async () => {
   mainWin = await createMainWin();
@@ -51,18 +51,27 @@ const main = async () => {
   ipcMain.on("loginInfo", async (event, loginInfo) => {
     if (await login(loginInfo)) {
       mainWin.webContents.send("loginSuccess");
+      mainWin.webContents.send("newUser");
       if (savedLoginInfo.id === loginInfo.id && savedLoginInfo.pw === loginInfo.pw) {
         console.log("same");
       } else {
         console.log("dif");
       }
-      const subjectList = await get_subject_list();
+      /*
+       const subjectList = await get_subject_list();
       const test = await Promise.all(subjectList.map((subject) => get_subject_info(subject)));
-
-      console.log(test);
+       */
     } else {
       mainWin.webContents.send("loginFail");
     }
+  });
+
+  ipcMain.on("setSubjects", async () => {
+    const { win, page } = await create_sub_win(true);
+    await win.loadURL(url + "/courses");
+    win.on("close", () => {
+      get_all_subject_info();
+    });
   });
 };
 
@@ -95,12 +104,12 @@ function createMainWin() {
   });
 }
 
-async function create_sub_win() {
+async function create_sub_win(show) {
   const window = new BrowserWindow({
-    width: 800,
-    height: 800,
-    show: true,
-    resizable: false,
+    width: 1500,
+    height: 900,
+    show: show,
+    resizable: true,
   });
   isDev && window.show();
   const page = await pie.getPage(browser, window);
@@ -108,7 +117,7 @@ async function create_sub_win() {
 }
 
 async function login(loginInfo) {
-  const { win, page } = await create_sub_win();
+  const { win, page } = await create_sub_win(false);
   await win.loadURL(url + "/courses");
   //id 입력
   await page.focus("#login_user_id");
@@ -147,7 +156,7 @@ async function login(loginInfo) {
 main();
 
 async function get_subject_list() {
-  const { win, page } = await create_sub_win();
+  const { win, page } = await create_sub_win(false);
   await win.loadURL(url + "/courses");
   const content = await page.content(),
     $ = cheerio.load(content);
@@ -161,13 +170,13 @@ async function get_subject_list() {
     }))
     .get()
     .filter((subject) => subject.star && typeof subject.title === "string");
-
   win.close();
+  mainWin.webContents.send("subjectCount", subjectList.length);
   return subjectList;
 }
 
 async function get_subject_info(subject) {
-  const { win, page } = await create_sub_win();
+  const { win, page } = await create_sub_win(false);
   await win.loadURL(url + subject.url + "/grades");
   const content = await page.content(),
     $ = cheerio.load(content);
@@ -197,14 +206,26 @@ async function get_subject_info(subject) {
   };
 }
 
+async function get_all_subject_info() {
+  const subjectList = await get_subject_list();
+  const subjectInfo = await Promise.all(
+    subjectList.map((subject, index) => {
+      mainWin.webContents.send("subjectLoaded", index + 1);
+      return get_subject_info(subject);
+    })
+  );
+  mainWin.webContents.send("subjectLoadedComplete");
+  return subjectInfo;
+}
+
 function crawlerBackup() {
   //Front 에서 toMain 채널로 정보 전달 시 실행
   ipcMain.on("toMain", async () => {
     const result = [],
       knuLMS = "https://knulms.kongju.ac.kr",
       subWin = new BrowserWindow({
-        width: 800,
-        height: 800,
+        width: 1000,
+        height: 1200,
         show: true,
         resizable: false,
       });

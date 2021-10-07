@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Progress } from "reactstrap";
 import logo from "../assets/img/logo.png";
 import "../assets/style/css/login.min.css";
+
 function LoginView() {
   /*id 상태 관리*/
   const [id, setId] = useState("");

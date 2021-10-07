@@ -1,0 +1,21 @@
+@import "./libs/_vars.scss";
+.target-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  > p {
+    text-align: center;
+  }
+  .example {
+    width: 80%;
+  }
+  .add-button {
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    border: none;
+    background-color: $subTxtColor;
+    color: $bgColor;
+  }
+}
