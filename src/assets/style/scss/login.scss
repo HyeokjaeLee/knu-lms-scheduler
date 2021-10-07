@@ -4,24 +4,19 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 1em;
 }
 .logo {
-  width: 7em;
+  width: 6em;
 }
 
 .title {
-  font-size: 1.2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
   font-weight: 900;
-  margin-bottom: 3em;
-}
-
-.login-input {
-  font-size: 1.2em;
-  border: none;
-  border-bottom: 3px solid $subTxtColor;
-  margin-bottom: 2em;
-  outline: none;
-  padding: 0.5em;
 }
 
 .login-button {
@@ -30,4 +25,30 @@
   border: none;
   background-color: $subTxtColor;
   color: $bgColor;
+}
+
+.login-fail {
+  position: fixed;
+  background-color: $bgColor;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 1em;
+  &.show {
+    display: block;
+  }
+  &.hide {
+    display: none;
+  }
+}
+
+.input-wrap {
+  > p {
+    margin: 0;
+  }
+  > input {
+    font-size: 1.2em;
+    border: none;
+    border-bottom: 3px solid $subTxtColor;
+    outline: none;
+  }
 }

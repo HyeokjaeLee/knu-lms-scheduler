@@ -4,8 +4,9 @@ const { ipcMain, BrowserWindow, app } = require("electron"),
   pie = require("puppeteer-in-electron"),
   puppeteer = require("puppeteer-core"),
   cheerio = require("cheerio"),
-  today = new Date(),
-  removeEmpty = (str) => str.replace(/\s/g, ""),
+  fs = require("fs");
+const today = new Date();
+const removeEmpty = (str) => str.replace(/\s/g, ""),
   dateFormater = (str) => {
     let date = undefined;
     if (str.indexOf("일") != -1) {
@@ -22,39 +23,104 @@ const { ipcMain, BrowserWindow, app } = require("electron"),
     }
     return date;
   };
-console.log("test");
+const url = "https://knulms.kongju.ac.kr";
+const basePath = `${app.getPath("appData")}/KNULMS/`;
+const loginInfoPath = basePath + "loginInfo.json";
 let browser = (async () => {
   // browser.pages is not a function 에러로 인한 선언형태
   await pie.initialize(app);
   browser = await pie.connect(app, puppeteer);
 })();
 
-app.on("ready", async () => {
-  const mainWin = new BrowserWindow({
-    minWidth: 1200,
-    minHeight: 800,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"), // use a preload script
-    },
-  });
+!fs.existsSync(basePath) && fs.mkdirSync(basePath);
 
-  //개발 메뉴 활성화 및 로컬호스팅 주소 설정
-  if (isDev) {
-    mainWin.loadURL("http://localhost:3000");
-  } else {
-    mainWin.setMenu(null);
-    mainWin.loadURL(`file://${path.join(__dirname, "../build/index.html")}`);
+let mainWin, crawlerWin, crawlerPage;
+
+const main = async () => {
+  mainWin = await createMainWin();
+
+  /*저장된 로그인 정보가 있다면 로그인 정보를 불러옴*/
+  if (fs.existsSync(loginInfoPath)) {
+    const loginInfo = JSON.parse(fs.readFileSync(loginInfoPath));
+    mainWin.webContents.send("loginInfo", loginInfo);
   }
 
-  mainWin.on("close", () => {
-    app.quit();
-  });
+  /*로그인 시도 후 실행*/
+  ipcMain.on("loginInfo", async (event, loginInfo) => {
+    crawlerWin = new BrowserWindow({
+      width: 800,
+      height: 800,
+      show: true,
+      resizable: false,
+    });
 
-  ipcMain.on("loginInfo", async (event, data) => {
-    console.log(data);
-    console.log("login");
-  });
+    //개발자 옵션 활성화
+    isDev && crawlerWin.show();
 
+    crawlerPage = await pie.getPage(browser, crawlerWin);
+    const isLogin = await login(loginInfo);
+    console.log(isLogin);
+  });
+};
+
+function createMainWin() {
+  return new Promise((resolve, reject) => {
+    app.on("ready", async () => {
+      const mainWin = new BrowserWindow({
+        minWidth: 1200,
+        minHeight: 800,
+        show: false,
+        webPreferences: {
+          preload: path.join(__dirname, "preload.js"), // use a preload script
+        },
+      });
+      mainWin.on("close", () => {
+        app.quit();
+      });
+      if (isDev) {
+        mainWin.loadURL("http://localhost:3000");
+      } else {
+        mainWin.setMenu(null);
+        mainWin.loadURL(`file://${path.join(__dirname, "../build/index.html")}`);
+      }
+      //login view의 정보들이 모두 생성되면 mainWin을 화면에 표시하고 반환
+      ipcMain.on("appReady", () => {
+        mainWin.show();
+        resolve(mainWin);
+      });
+    });
+  });
+}
+
+async function login(loginInfo) {
+  crawlerPage = await pie.getPage(browser, crawlerWin);
+  await crawlerWin.loadURL(url + "/courses");
+  //id 입력
+  await crawlerPage.focus("#login_user_id");
+  await crawlerPage.keyboard.type(loginInfo.id);
+  //password 입력
+  await crawlerPage.focus("#login_user_password");
+  await crawlerPage.keyboard.type(loginInfo.password);
+  await crawlerPage.click("#form1 > div.login_btn > a");
+  try {
+    await crawlerPage.waitForSelector("#content > div.header-bar", {
+      timeout: 500,
+    });
+    //로그인 성공 시 사용자가 정보 저장을 원하면 저장, 아니면 삭제
+    loginInfo.keep
+      ? fs.writeFileSync(loginInfoPath, JSON.stringify(loginInfo))
+      : fs.unlinkSync(loginInfoPath);
+    return true;
+  } catch (e) {
+    mainWin.webContents.send("loginFail");
+    crawlerWin.close();
+    return false;
+  }
+}
+
+main();
+
+/*
   //Front 에서 toMain 채널로 정보 전달 시 실행
   ipcMain.on("toMain", async () => {
     const result = [],
@@ -122,8 +188,4 @@ app.on("ready", async () => {
     }
     subWin.close();
     mainWin.webContents.send("fromLMS", result);
-  });
-});
-app.on("window-all-closed", () => {
-  app.quit();
-});
+  }); */
