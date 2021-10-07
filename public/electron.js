@@ -171,7 +171,7 @@ async function get_subject_list() {
     .get()
     .filter((subject) => subject.star && typeof subject.title === "string");
   win.close();
-  mainWin.webContents.send("subjectCount", subjectList.length);
+  mainWin.webContents.send("getSubjectList");
   return subjectList;
 }
 

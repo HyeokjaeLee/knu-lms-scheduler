@@ -22,7 +22,7 @@ function TargetView() {
     </>
   );
 
-  window.api.receive("subjectCount", () => {
+  window.api.receive("getSubjectList", () => {
     setView(<></>);
   });
   return (

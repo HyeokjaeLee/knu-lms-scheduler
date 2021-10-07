@@ -67,16 +67,25 @@
   }
 }
 .loading-wrap {
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  .subject-loading {
-    width: 50%;
-    color: black;
+  position: fixed;
+  margin: 2em;
+  padding: 2em;
+  background-color: rgba($bgColor, 0.8);
+  border-radius: $borderRadius;
+  box-shadow: $boxShadow;
+  text-align: center;
+  font-size: 1em;
+  font-weight: 900;
+  .spinner {
+    font-size: 0;
+    margin-bottom: 10px;
   }
   &.show {
-    display: flex;
+    display: inline;
+  }
+  &.corner {
+    bottom: 0;
+    right: 0;
   }
 }
 

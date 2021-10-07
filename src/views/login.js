@@ -43,10 +43,7 @@ function LoginView() {
   window.api.send("appReady");
   return (
     <section className="login-section">
-      <h1 className="title">
-        <img src={logo} className="logo" />
-        LMS Scheduler
-      </h1>
+      <img src={logo} className="logo" />
 
       <label className="input-wrap">
         <p>학번</p>
