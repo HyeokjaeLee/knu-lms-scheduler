@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { Spinner } from "reactstrap";
-import logo from "../assets/img/logo.png";
-import example from "../assets/img/ex.png";
-import "../assets/style/css/target.min.css";
 function SubjectLoading() {
   const [spinner, setSpinner] = useState("hide");
-  window.api.receive("getSubjectList", () => {
+  window.api.receive("update-start", () => {
     setSpinner("show");
   });
-  window.api.receive("subjectLoadedComplete", () => {
+  window.api.receive("update-finish", () => {
     setSpinner("hide");
   });
   return (

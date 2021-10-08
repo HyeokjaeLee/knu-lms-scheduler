@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Progress } from "reactstrap";
 import logo from "../assets/img/logo.png";
-import "../assets/style/css/login.min.css";
+import Footer from "../components/footer";
 
 function LoginView() {
   /*id 상태 관리*/
@@ -22,61 +21,63 @@ function LoginView() {
   };
   /*입력 받은 id,비밀번호를 electron으로 전달*/
   const send_login_info = () => {
-    window.api.send("loginInfo", { id: id, password: password, keep: keepLoginInfo });
+    window.api.send("login", { id: id, password: password, keep: keepLoginInfo });
   };
 
   /*로그인 실패를 사용자에게 알려줌*/
   const [loginFailAlert, setLoginFailAlert] = useState("hide");
-  window.api.receive("loginFail", () => {
+  window.api.receive("login-fail", () => {
     setLoginFailAlert("show");
     setTimeout(() => {
       setLoginFailAlert("hide");
     }, 1000);
   });
 
-  window.api.receive("loginInfo", (loginInfo) => {
-    console.log(loginInfo);
+  window.api.receive("saved-login-info", (loginInfo) => {
     setId(loginInfo.id);
     setPassword(loginInfo.password);
   });
 
-  window.api.send("appReady");
+  window.api.send("app-ready");
   return (
     <section className="login-section">
-      <img src={logo} className="logo" />
+      <main>
+        <img src={logo} className="logo" />
 
-      <label className="input-wrap">
-        <p>학번</p>
-        <input
-          className="login-input"
-          placeholder="201600000"
-          value={id}
-          onChange={on_change_id}
-        ></input>
-      </label>
-      <label className="input-wrap">
-        <p>비밀번호</p>
-        <input
-          placeholder="password"
-          type="password"
-          value={password}
-          onChange={on_change_password}
-        ></input>
-      </label>
+        <label className="input-wrap">
+          <p>학번</p>
+          <input
+            className="login-input"
+            placeholder="201600000"
+            value={id}
+            onChange={on_change_id}
+          ></input>
+        </label>
+        <label className="input-wrap">
+          <p>비밀번호</p>
+          <input
+            placeholder="password"
+            type="password"
+            value={password}
+            onChange={on_change_password}
+          ></input>
+        </label>
 
-      <lable className="keep-login-info-wrap">
-        <p>로그인정보 저장</p>
-        <input type="checkbox" onChange={on_change_keepLoginInfo} checked={keepLoginInfo} />
-      </lable>
+        <lable className="keep-login-info-wrap">
+          <p>로그인정보 저장</p>
+          <input type="checkbox" onChange={on_change_keepLoginInfo} checked={keepLoginInfo} />
+        </lable>
 
-      <button className="login-button" onClick={send_login_info}>
-        Login
-      </button>
-      <div className={`login-fail ${loginFailAlert}`}>
-        로그인에 실패했습니다.
-        <br />
-        학번과 비밀번호를 확인해 주세요.
-      </div>
+        <button className="login-button" onClick={send_login_info}>
+          Login
+        </button>
+        <div className={`login-fail ${loginFailAlert}`}>
+          로그인에 실패했습니다.
+          <br />
+          학번과 비밀번호를 확인해 주세요.
+        </div>
+      </main>
+      <Footer />
     </section>
   );
 }

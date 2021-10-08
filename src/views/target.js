@@ -3,10 +3,9 @@ import { Progress } from "reactstrap";
 import logo from "../assets/img/logo.png";
 import example from "../assets/img/ex.png";
 import SubjectLoading from "../components/subject-loading";
-import "../assets/style/css/target.min.css";
 function TargetView() {
   const set_subjects = () => {
-    window.api.send("setSubjects");
+    window.api.send("set-target-subject");
   };
   const [view, setView] = useState(
     <>
@@ -22,7 +21,7 @@ function TargetView() {
     </>
   );
 
-  window.api.receive("getSubjectList", () => {
+  window.api.receive("update-start", () => {
     setView(<></>);
   });
   return (

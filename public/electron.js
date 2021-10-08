@@ -26,6 +26,10 @@ const removeEmpty = (str) => str.replace(/\s/g, ""),
 const url = "https://knulms.kongju.ac.kr";
 const basePath = `${app.getPath("appData")}/KNULMS/`;
 const loginInfoPath = basePath + "loginInfo.json";
+!fs.existsSync(basePath) && fs.mkdirSync(basePath);
+console.log(basePath);
+
+let subjectData = [];
 
 let browser = (async () => {
   // browser.pages is not a function 에러로 인한 선언형태
@@ -33,44 +37,30 @@ let browser = (async () => {
   browser = await pie.connect(app, puppeteer);
 })();
 
-!fs.existsSync(basePath) && fs.mkdirSync(basePath);
-
 let mainWin;
-
 const main = async () => {
   mainWin = await createMainWin();
-
-  let savedLoginInfo;
-  /*저장된 로그인 정보가 있다면 로그인 정보를 불러옴*/
-  if (fs.existsSync(loginInfoPath)) {
-    savedLoginInfo = JSON.parse(fs.readFileSync(loginInfoPath));
-    mainWin.webContents.send("loginInfo", savedLoginInfo);
-  }
-
-  /*로그인 시도 후 실행*/
-  ipcMain.on("loginInfo", async (event, loginInfo) => {
+  const savedLoginInfo = get_saved_login_info();
+  ipcMain.on("login", async (event, loginInfo) => {
     if (await login(loginInfo)) {
-      mainWin.webContents.send("loginSuccess");
-      mainWin.webContents.send("newUser");
       if (savedLoginInfo.id === loginInfo.id && savedLoginInfo.pw === loginInfo.pw) {
-        console.log("same");
+        mainWin.webContents.send("login-success");
+        subjectData = await get_all_subject_info();
+        set_subject_data();
       } else {
-        console.log("dif");
+        mainWin.webContents.send("new-user");
       }
-      /*
-       const subjectList = await get_subject_list();
-      const test = await Promise.all(subjectList.map((subject) => get_subject_info(subject)));
-       */
     } else {
-      mainWin.webContents.send("loginFail");
+      mainWin.webContents.send("login-fail");
     }
   });
 
-  ipcMain.on("setSubjects", async () => {
+  ipcMain.on("set-target-subject", async () => {
     const { win, page } = await create_sub_win(true);
     await win.loadURL(url + "/courses");
     win.on("close", () => {
-      get_all_subject_info();
+      mainWin.webContents.send("login-success");
+      subjectData = get_all_subject_info();
     });
   });
 };
@@ -96,12 +86,21 @@ function createMainWin() {
         mainWin.loadURL(`file://${path.join(__dirname, "../build/index.html")}`);
       }
       //login view의 정보들이 모두 생성되면 mainWin을 화면에 표시하고 반환
-      ipcMain.on("appReady", () => {
+      ipcMain.on("app-ready", () => {
         mainWin.show();
         resolve(mainWin);
       });
     });
   });
+}
+
+/*기존에 저장된 로그인 정보가 있으면 불러오고 input에 입력*/
+function get_saved_login_info() {
+  const savedLoginInfo = fs.existsSync(loginInfoPath)
+    ? JSON.parse(fs.readFileSync(loginInfoPath))
+    : undefined;
+  savedLoginInfo && mainWin.webContents.send("saved-login-info", savedLoginInfo);
+  return savedLoginInfo;
 }
 
 async function create_sub_win(show) {
@@ -153,8 +152,6 @@ async function login(loginInfo) {
   return isLogin;
 }
 
-main();
-
 async function get_subject_list() {
   const { win, page } = await create_sub_win(false);
   await win.loadURL(url + "/courses");
@@ -171,7 +168,6 @@ async function get_subject_list() {
     .get()
     .filter((subject) => subject.star && typeof subject.title === "string");
   win.close();
-  mainWin.webContents.send("getSubjectList");
   return subjectList;
 }
 
@@ -189,9 +185,11 @@ async function get_subject_info(subject) {
             ? true
             : false,
         isFail =
-          deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false;
+          deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false,
+        type = $(element).find("td.assignment_type").text();
       return {
         name: name,
+        type: type,
         deadLine: deadLine,
         done: isDone,
         fail: isFail,
@@ -207,15 +205,19 @@ async function get_subject_info(subject) {
 }
 
 async function get_all_subject_info() {
+  mainWin.webContents.send("update-start");
   const subjectList = await get_subject_list();
   const subjectInfo = await Promise.all(
-    subjectList.map((subject, index) => {
-      mainWin.webContents.send("subjectLoaded", index + 1);
+    subjectList.map((subject) => {
       return get_subject_info(subject);
     })
   );
-  mainWin.webContents.send("subjectLoadedComplete");
+  mainWin.webContents.send("update-finish");
   return subjectInfo;
+}
+
+function set_subject_data() {
+  mainWin.webContents.send("set-subject-data", subjectData);
 }
 
 function crawlerBackup() {
@@ -288,3 +290,5 @@ function crawlerBackup() {
     mainWin.webContents.send("fromLMS", result);
   });
 }
+
+main();
