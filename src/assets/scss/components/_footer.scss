@@ -1,0 +1,22 @@
+.footer {
+  @include center-flex;
+  font-size: 0.8em;
+  color: $subTxtColor;
+  gap: 0.5em;
+  padding: 3em;
+  .github-link {
+    transition: color 0.3s;
+    @include center-flex;
+    > svg {
+      transition: fill 0.3s;
+      width: 2rem;
+      height: 2rem;
+    }
+    &:hover {
+      color: $subTxtColor;
+      > svg {
+        fill: $subTxtColor;
+      }
+    }
+  }
+}

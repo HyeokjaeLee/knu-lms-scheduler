@@ -43,34 +43,30 @@ function LoginView() {
     <section className="login-section">
       <main>
         <img src={logo} className="logo" />
+        <article className="login">
+          <section className="input-wrap">
+            <label>학번</label>
+            <input placeholder="201600000" value={id} onChange={on_change_id}></input>
+          </section>
+          <section className="input-wrap">
+            <label>비밀번호</label>
+            <input
+              placeholder="password"
+              type="password"
+              value={password}
+              onChange={on_change_password}
+            ></input>
+          </section>
 
-        <label className="input-wrap">
-          <p>학번</p>
-          <input
-            className="login-input"
-            placeholder="201600000"
-            value={id}
-            onChange={on_change_id}
-          ></input>
-        </label>
-        <label className="input-wrap">
-          <p>비밀번호</p>
-          <input
-            placeholder="password"
-            type="password"
-            value={password}
-            onChange={on_change_password}
-          ></input>
-        </label>
+          <section className="keep-login-wrap">
+            <label>로그인정보 저장</label>
+            <input type="checkbox" onChange={on_change_keepLoginInfo} checked={keepLoginInfo} />
+          </section>
 
-        <lable className="keep-login-info-wrap">
-          <p>로그인정보 저장</p>
-          <input type="checkbox" onChange={on_change_keepLoginInfo} checked={keepLoginInfo} />
-        </lable>
-
-        <button className="login-button" onClick={send_login_info}>
-          Login
-        </button>
+          <button className="login-button" onClick={send_login_info}>
+            로그인
+          </button>
+        </article>
         <div className={`login-fail ${loginFailAlert}`}>
           로그인에 실패했습니다.
           <br />

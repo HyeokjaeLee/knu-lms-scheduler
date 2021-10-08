@@ -1,0 +1,28 @@
+.login-section {
+  @include center-flex;
+  > main {
+    @include center-flex;
+    flex: 1;
+    gap: 2em;
+    > .login {
+      @include center-flex;
+      gap: 1em;
+      > .input-wrap {
+        > input {
+          display: block;
+          border: none;
+          border-bottom: 3px solid $subTxtColor;
+        }
+      }
+      > .keep-login-wrap {
+        @include center-flex;
+        flex-direction: row;
+        gap: 0.5em;
+        > input {
+          height: 1.1em;
+          width: 1.1em;
+        }
+      }
+    }
+  }
+}

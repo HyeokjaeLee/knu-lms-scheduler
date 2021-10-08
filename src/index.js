@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import Login from "./views/login";
 import Target from "./views/target";
 import Contents from "./views/contents";
-import "./assets/style/index.scss";
+import "./assets/scss/index.scss";
 
 function App() {
   const [view, setView] = useState(<Login />);

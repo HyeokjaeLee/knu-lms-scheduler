@@ -1,0 +1,62 @@
+@import "../fonts/font.css";
+@import "./libs/vars";
+@import "./libs/mixins";
+@import "./views/login.scss";
+@import "./components/footer";
+@import "./components/loading";
+@import "./views/target";
+body {
+  font-size: 18px;
+}
+
+ul {
+  list-style: none;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "NotoSans";
+  box-sizing: border-box;
+  font-size: 1em;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: $txtColor;
+}
+
+button {
+  cursor: pointer;
+  color: $bgColor;
+  padding: 0.5em 1em;
+  background-color: $txtColor;
+  border: none;
+  border-radius: $borderRadius;
+  transition: background-color 0.3s;
+  font-weight: 100;
+  &:hover {
+    background-color: $subTxtColor;
+  }
+}
+
+.view-wrap {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  > section {
+    flex: 1;
+  }
+}
+
+.logo {
+  width: 5em;
+}
+
+.show {
+  display: unset;
+}
+.hide {
+  display: none;
+}

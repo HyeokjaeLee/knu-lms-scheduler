@@ -1,5 +1,5 @@
 import React from "react";
-import SubjectLoading from "../components/subject-loading";
+import Loading from "../components/loading";
 
 function Contents(props) {
   const [subjectList, setSubjectList] = React.useState(<></>);
@@ -19,7 +19,7 @@ function Contents(props) {
   return (
     <section className="contents-section">
       <ul className="subject-list">{subjectList}</ul>
-      <SubjectLoading />
+      <Loading />
     </section>
   );
 }

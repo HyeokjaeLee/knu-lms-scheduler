@@ -1,0 +1,15 @@
+.target-section {
+  @include center-flex;
+  .example {
+    height: 15em;
+    border-radius: $borderRadius;
+  }
+  > main {
+    > p {
+      text-align: center;
+    }
+    flex: 1;
+    @include center-flex;
+    gap: 1em;
+  }
+}
