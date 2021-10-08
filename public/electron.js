@@ -186,7 +186,7 @@ async function get_subject_info(subject) {
             : false,
         isFail =
           deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false,
-        type = $(element).find("td.assignment_type").text();
+        type = $(element).find("th>.context").text();
       return {
         name: name,
         type: type,

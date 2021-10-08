@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Progress } from "reactstrap";
-import logo from "../assets/img/logo.png";
+import { ReactComponent as Logo } from "../assets/img/logo.svg";
 import example from "../assets/img/example.gif";
 import Loading from "../components/loading";
 import Footer from "../components/footer";
@@ -12,7 +12,7 @@ function TargetView() {
   return (
     <section className="target-section">
       <main>
-        <img src={logo} className="logo" />
+        <Logo class="logo" />
         <p>
           해당 사용자의 설정값이 존재하지 않습니다.
           <br />

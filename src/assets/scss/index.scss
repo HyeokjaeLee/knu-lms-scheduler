@@ -2,6 +2,8 @@
 @import "./libs/vars";
 @import "./libs/mixins";
 @import "./views/login.scss";
+
+@import "./views/contents.scss";
 @import "./components/footer";
 @import "./components/loading";
 @import "./views/target";
@@ -52,11 +54,17 @@ button {
 
 .logo {
   width: 5em;
+  height: 5em;
+  fill: #222222;
 }
 
 .show {
   display: unset;
 }
 .hide {
+  display: none;
+}
+
+::-webkit-scrollbar {
   display: none;
 }

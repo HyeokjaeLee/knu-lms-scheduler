@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "../assets/img/logo.png";
+import { ReactComponent as Logo } from "../assets/img/logo.svg";
 import Footer from "../components/footer";
 
 function LoginView() {
@@ -42,7 +42,7 @@ function LoginView() {
   return (
     <section className="login-section">
       <main>
-        <img src={logo} className="logo" />
+        <Logo class="logo" />
         <article className="login">
           <section className="input-wrap">
             <label>학번</label>
