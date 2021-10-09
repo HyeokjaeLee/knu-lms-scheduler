@@ -190,7 +190,7 @@ async function get_subject_info(subject) {
       return {
         name: name,
         type: type,
-        deadLine: deadLine,
+        deadline: deadLine,
         done: isDone,
         fail: isFail,
       };

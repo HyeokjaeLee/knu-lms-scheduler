@@ -6,8 +6,26 @@
     top: 0;
     background-color: #353942;
     display: flex;
-    box-shadow: $boxShadow;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.25);
     flex: 1;
+    .edit-button,
+    .refresh-button {
+      border-radius: 0;
+      background-color: #e7604a;
+      padding: 0.8em;
+      font-size: 0.8em;
+    }
+    .edit-button {
+      border-right: 1px solid #ff6951;
+    }
+    .nav-txt {
+      padding-left: 1em;
+      flex: 1;
+      font-size: 1.5em;
+      font-weight: 100;
+      color: white;
+      padding-top: 0.5em;
+    }
     .logo-wrap {
       background-color: #29c7ca;
       display: flex;
@@ -17,12 +35,12 @@
       gap: 0.6em;
       > h1 {
         font-size: 1.2em;
-        font-weight: 400;
+        font-weight: 500;
       }
       color: white;
       .nav-logo {
-        width: 3em;
-        height: 3em;
+        width: 2em;
+        height: 2em;
         fill: white;
       }
     }
@@ -33,59 +51,69 @@
     height: 90vh;
     .subject-list {
       overflow-y: auto;
-      padding: 1em;
       width: 400px;
       font-size: 0.9em;
       color: $bgColor;
       background-color: #353942;
-      .shortcut {
-        width: 1.5em;
-        height: 1.5em;
-        fill: white;
-      }
-      .subject-wrap {
-        transition: all 0.2s ease-in-out;
-        padding: 0.5em;
-        font-weight: 100;
-        border-bottom: 1px solid #727b8e;
-        border-radius: 2px;
-        display: flex;
-        align-items: center;
-        .subject-item-wrap {
-          margin-top: 0.5em;
-          display: flex;
-          flex-direction: row;
-          padding: 0 1em;
-          gap: 1em;
-          > a,
-          > span {
-            flex: 1;
-            padding: 0.1em 0.1em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          > span {
-            font-size: 0.8em;
-            background-color: #727b8e;
-            border-radius: $borderRadius;
-          }
-        }
-
-        h2 {
-          font-weight: 100;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        &:hover {
-          color: black;
-          background-color: #727b8e;
-        }
-      }
     }
     > .contents {
       flex: 1;
     }
   }
+}
+
+.subject-wrap {
+  border-radius: $borderRadius;
+  border: 2px solid #474b58;
+  margin: 0.5em;
+  background-color: #26282f;
+  transition: border-color 0.2s ease-in-out;
+  cursor: pointer;
+  &:hover {
+    border: 2px solid white;
+  }
+  > .subject-header {
+    display: flex;
+    align-items: center;
+    padding: 1em;
+    gap: 1em;
+    border-bottom: 2px solid #474b58;
+    > .subject-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    > .shortcut {
+      border-radius: 100px;
+      background-color: #c0c2c3;
+      display: flex;
+      padding: 0.5em;
+      align-items: center;
+      justify-content: center;
+      &.red {
+        background-color: #e7604a;
+      }
+
+      > .shortcut-icon {
+        width: 1.5em;
+        height: 1.5em;
+        fill: white;
+      }
+    }
+  }
+  > .subject-item-wrap {
+    display: flex;
+    padding: 0.7em;
+    > span {
+      font-size: 0.8em;
+      flex: 1;
+      text-align: center;
+    }
+  }
+}
+
+.all-done {
+  width: 1em;
+  height: 1em;
+  fill: green;
 }

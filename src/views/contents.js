@@ -1,26 +1,45 @@
 import React from "react";
 import Loading from "../components/loading";
 import { ReactComponent as Logo } from "../assets/img/logo.svg";
+import { ReactComponent as Done } from "../assets/img/done.svg";
 import { ReactComponent as ShortCut } from "../assets/img/shortcut.svg";
 function Contents(props) {
+  const today = new Date().getTime();
   const [subjectList, setSubjectList] = React.useState(<></>);
   window.api.receive("set-subject-data", (subjectData) => {
-    console.log(subjectData[1].data);
-    const subjectElementArr = subjectData.map((subject) => (
-      <li className="subject-wrap">
-        <div>
-          <h2>{subject.title}</h2>
-          <div className="subject-item-wrap">
-            <span>12/32</span>
-            <span>13/22</span>
-            <span>13.9일</span>
+    const subjectElementArr = subjectData.map((subject) => {
+      const todoList = subject.data.filter((_data) => !_data.done && !_data.fail);
+      const todoCount = todoList.length;
+      let deadline = "";
+      let lecture = "";
+      let task = <Done className="all-done" />;
+      let highLight = "";
+      if (todoCount > 0) {
+        const deadlineList = todoList.map((_data) => _data.deadline);
+        const nearDeadline = Math.min(...deadlineList);
+        const taskCount = todoList.filter((_data) => _data.type === "과제").length;
+        const leftDeadline = Math.floor((nearDeadline - today) / 100 / 60 / 60 / 24) / 10;
+        task = `미제출 ${taskCount}개`;
+        lecture = `미수강 ${todoCount - taskCount}개`;
+        deadline = `마감 ${leftDeadline}일`;
+        highLight = leftDeadline < 5 ? "red" : "";
+      }
+      return (
+        <li className="subject-wrap">
+          <div className="subject-header">
+            <a href={subject.url} className={`shortcut ${highLight}`}>
+              <ShortCut class="shortcut-icon" />
+            </a>
+            <h2 className="subject-title">{subject.title}</h2>
           </div>
-        </div>
-        <a href={subject.url}>
-          <ShortCut class="shortcut" />
-        </a>
-      </li>
-    ));
+          <div className="subject-item-wrap">
+            <span className="lecture">{lecture}</span>
+            <span className="task">{task}</span>
+            <span className="deadline">{deadline}</span>
+          </div>
+        </li>
+      );
+    });
     setSubjectList(subjectElementArr);
   });
 
@@ -29,8 +48,11 @@ function Contents(props) {
       <nav>
         <div className="logo-wrap">
           <Logo class="nav-logo" />
-          <h1>LMS Scheduler</h1>
+          <h1>SCHEDULER</h1>
         </div>
+        <div className="nav-txt">Detail</div>
+        <button className="edit-button">과목 편집</button>
+        <button className="refresh-button">새로고침</button>
       </nav>
       <main>
         <ul className="subject-list">{subjectList}</ul>
