@@ -6,7 +6,13 @@ import { ReactComponent as ShortCut } from "../assets/img/shortcut.svg";
 function Contents(props) {
   const today = new Date().getTime();
   const [subjectList, setSubjectList] = React.useState(<></>);
+
+  function update_subject() {
+    window.api.send("update-subject");
+  }
+
   window.api.receive("set-subject-data", (subjectData) => {
+    console.log("subject update");
     const subjectElementArr = subjectData.map((subject) => {
       const todoList = subject.data.filter((_data) => !_data.done && !_data.fail);
       const todoCount = todoList.length;
@@ -24,10 +30,15 @@ function Contents(props) {
         deadline = `마감 ${leftDeadline}일`;
         highLight = leftDeadline < 5 ? "red" : "";
       }
+
+      function link2LMS() {
+        window.api.send("open-lms-page", subject.url);
+      }
+
       return (
         <li className="subject-wrap">
           <div className="subject-header">
-            <a href={subject.url} className={`shortcut ${highLight}`}>
+            <a onClick={link2LMS} className={`shortcut ${highLight}`}>
               <ShortCut class="shortcut-icon" />
             </a>
             <h2 className="subject-title">{subject.title}</h2>
@@ -52,11 +63,15 @@ function Contents(props) {
         </div>
         <div className="nav-txt">Detail</div>
         <button className="edit-button">과목 편집</button>
-        <button className="refresh-button">새로고침</button>
+        <button className="refresh-button" onClick={update_subject}>
+          새로고침
+        </button>
       </nav>
       <main>
         <ul className="subject-list">{subjectList}</ul>
-        <article className="contents">ss</article>
+        <article className="contents">
+          <Done />
+        </article>
       </main>
       <Loading />
     </section>

@@ -58,10 +58,26 @@ const main = async () => {
   ipcMain.on("set-target-subject", async () => {
     const { win, page } = await create_sub_win(true);
     await win.loadURL(url + "/courses");
-    win.on("close", () => {
+    win.on("close", async () => {
       mainWin.webContents.send("login-success");
-      subjectData = get_all_subject_info();
+      subjectData = await get_all_subject_info();
+      set_subject_data();
     });
+  });
+
+  ipcMain.on("open-lms-page", async (event, subjectURL) => {
+    const { win, page } = await create_sub_win(true);
+    console.log(subjectURL);
+    await win.loadURL(url + subjectURL);
+    const subjectIndex = subjectData.findIndex((subject) => subject.url === subjectURL);
+    win.on("close", async () => {
+      subjectData[subjectIndex] = await get_subject_info(subjectData[subjectIndex]);
+      set_subject_data();
+    });
+  });
+
+  ipcMain.on("update-subject", () => {
+    get_all_subject_info();
   });
 };
 
