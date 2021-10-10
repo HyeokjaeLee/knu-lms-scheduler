@@ -43,11 +43,12 @@ const main = async () => {
   const savedLoginInfo = get_saved_login_info();
   ipcMain.on("login", async (event, loginInfo) => {
     if (await login(loginInfo)) {
-      if (savedLoginInfo.id === loginInfo.id && savedLoginInfo.pw === loginInfo.pw) {
+      if (savedLoginInfo.id === loginInfo.id && savedLoginInfo.password === loginInfo.password) {
         mainWin.webContents.send("login-success");
         subjectData = await get_all_subject_info();
         set_subject_data();
       } else {
+        console.log("new-user");
         mainWin.webContents.send("new-user");
       }
     } else {
@@ -114,7 +115,7 @@ function createMainWin() {
 function get_saved_login_info() {
   const savedLoginInfo = fs.existsSync(loginInfoPath)
     ? JSON.parse(fs.readFileSync(loginInfoPath))
-    : undefined;
+    : { id: "", password: "" };
   savedLoginInfo && mainWin.webContents.send("saved-login-info", savedLoginInfo);
   return savedLoginInfo;
 }
@@ -132,6 +133,9 @@ async function create_sub_win(show) {
 }
 
 async function login(loginInfo) {
+  if (loginInfo.id.length === 0 || loginInfo.password.length === 0) {
+    return false;
+  }
   const { win, page } = await create_sub_win(false);
   await win.loadURL(url + "/courses");
   //id 입력

@@ -26,3 +26,11 @@
     }
   }
 }
+
+.login-fail {
+  padding: 1em;
+  position: fixed;
+  background-color: rgba($bgColor, 0.99);
+  border-radius: $borderRadius;
+  box-shadow: $boxShadow;
+}

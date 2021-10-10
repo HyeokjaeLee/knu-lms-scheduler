@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Progress } from "reactstrap";
 import { ReactComponent as Logo } from "../assets/img/logo.svg";
 import example from "../assets/img/example.gif";
-import Loading from "../components/loading";
 import Footer from "../components/footer";
 function TargetView() {
   const set_subjects = () => {
