@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Spinner } from "reactstrap";
+import React from "react";
 function Footer() {
   return (
     <footer className="footer">
@@ -7,6 +6,7 @@ function Footer() {
         href="https://github.com/HyeokjaeLee/knu-lms-scheduler"
         className="github-link"
         target="_blank"
+        rel="noreferrer"
       >
         <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <title>GitHub</title>

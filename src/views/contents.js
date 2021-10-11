@@ -5,7 +5,8 @@ import { ReactComponent as Todo } from "../assets/img/todo.svg";
 import { ReactComponent as Late } from "../assets/img/late.svg";
 import { ReactComponent as ShortCut } from "../assets/img/shortcut.svg";
 import Footer from "../components/footer";
-function Contents(props) {
+
+function Contents() {
   const today = new Date().getTime();
   const [subjectList, setSubjectList] = React.useState(<></>);
   const [navTxt, setNavTxt] = React.useState("Detail");
@@ -37,9 +38,7 @@ function Contents(props) {
       data: dataURL,
     });
   };
-
   window.api.receive("set-subject-data", (subjectData) => {
-    console.log("subject update");
     const subjectElementArr = subjectData.map((subject, index) => {
       const todoList = subject.data.filter((_data) => !_data.done && !_data.fail);
       const pastList = subject.data.filter((_data) => _data.done || _data.fail);
@@ -65,11 +64,11 @@ function Contents(props) {
         const create_view_detail = (subjectData) =>
           subjectData.map((_data) => {
             const result = _data.done ? (
-              <Done class="done" />
+              <Done className="done" />
             ) : _data.fail ? (
-              <Late class="fail" />
+              <Late className="fail" />
             ) : (
-              <Todo class="todo" />
+              <Todo className="todo" />
             );
             const deadline = !!_data.deadline ? new Date(_data.deadline) : undefined;
             const deadlineTxt = !!deadline
@@ -78,19 +77,20 @@ function Contents(props) {
                 }월 ${deadline.getDate()}일 ${deadline.getHours()}:${deadline.getMinutes()}까지`
               : "";
             return (
-              <a
+              <article
+                key={_data.name}
                 className="subject-detail-item"
                 onClick={() => {
                   link2LMS(subject.url, _data.url);
                 }}
               >
-                <article className="subject-info-wrap">
+                <div className="subject-info-wrap">
                   <div className="type">{_data.type}</div>
                   <h2 className="name">{_data.name}</h2>
                   <div className="deadline">{deadlineTxt}</div>
-                </article>
+                </div>
                 {result}
-              </a>
+              </article>
             );
           });
 
@@ -98,16 +98,16 @@ function Contents(props) {
       };
       index === 0 && viewDetail();
       return (
-        <li className="subject-wrap" onClick={viewDetail}>
+        <li className="subject-wrap" onClick={viewDetail} key={subject.title}>
           <div className="subject-header">
-            <a
+            <button
               onClick={() => {
                 link2LMS(subject.url);
               }}
               className={`shortcut ${highLight}`}
             >
-              <ShortCut class="shortcut-icon" />
-            </a>
+              <ShortCut className="shortcut-icon" />
+            </button>
             <h2 className="subject-title">{subject.title}</h2>
           </div>
           <div className="subject-item-wrap">
@@ -125,7 +125,7 @@ function Contents(props) {
     <section className="contents-section">
       <nav>
         <div className="logo-wrap">
-          <Logo class="nav-logo" />
+          <Logo className="nav-logo" />
           <h1>SCHEDULER</h1>
         </div>
         <div className="nav-txt">{navTxt}</div>

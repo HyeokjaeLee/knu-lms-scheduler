@@ -42,7 +42,7 @@ function LoginView() {
   return (
     <section className="login-section">
       <main>
-        <Logo class="logo" />
+        <Logo className="logo" />
         <article className="login">
           <section className="input-wrap">
             <label>학번</label>
