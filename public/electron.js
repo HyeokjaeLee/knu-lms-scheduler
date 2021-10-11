@@ -60,7 +60,7 @@ const main = async () => {
     }
   });
 
-  ipcMain.on("set-target-subject", async (isLogin) => {
+  ipcMain.on("set-target-subject", async (isFirst) => {
     const { win, page } = await create_sub_win(true);
     await win.loadURL(url + "/courses");
     win.on("close", async () => {
