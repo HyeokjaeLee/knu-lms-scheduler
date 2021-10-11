@@ -25,6 +25,7 @@ const dateFormater = (str) => {
 const url = "https://knulms.kongju.ac.kr";
 const basePath = `${app.getPath("appData")}/KNULMS/`;
 const loginInfoPath = basePath + "loginInfo.json";
+
 !fs.existsSync(basePath) && fs.mkdirSync(basePath);
 console.log(basePath);
 
@@ -39,6 +40,9 @@ let browser = (async () => {
 let mainWin;
 const main = async () => {
   mainWin = await createMainWin();
+  mainWin.on("close", () => {
+    app.quit();
+  });
   const savedLoginInfo = get_saved_login_info();
   ipcMain.on("login", async (event, loginInfo) => {
     if (await login(loginInfo)) {
@@ -90,9 +94,6 @@ function createMainWin() {
         webPreferences: {
           preload: path.join(__dirname, "preload.js"), // use a preload script
         },
-      });
-      mainWin.on("close", () => {
-        app.quit();
       });
       if (isDev) {
         mainWin.loadURL("http://localhost:3000");
