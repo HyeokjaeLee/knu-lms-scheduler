@@ -33,4 +33,14 @@
   background-color: rgba($bgColor, 0.99);
   border-radius: $borderRadius;
   box-shadow: $boxShadow;
+  display: flex;
+  &.default {
+    display: none;
+  }
+  &.show {
+    @include fade-in(0.3s);
+  }
+  &.hide {
+    @include fade-out(0.3s);
+  }
 }

@@ -25,12 +25,12 @@ function LoginView() {
   };
 
   /*로그인 실패를 사용자에게 알려줌*/
-  const [loginFailAlert, setLoginFailAlert] = useState("hide");
+  const [loginFailAlert, setLoginFailAlert] = useState("default");
   window.api.receive("login-fail", () => {
     setLoginFailAlert("show");
     setTimeout(() => {
       setLoginFailAlert("hide");
-    }, 1000);
+    }, 1500);
   });
 
   window.api.receive("saved-login-info", (loginInfo) => {

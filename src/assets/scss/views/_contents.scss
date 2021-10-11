@@ -76,6 +76,7 @@
   margin: 0.5em;
   background-color: #26282f;
   transition: border-color 0.2s ease-in-out;
+  cursor: pointer;
   &:hover {
     border: 2px solid white;
   }
@@ -91,6 +92,9 @@
       white-space: nowrap;
     }
     > .shortcut {
+      &:hover {
+        @include heartbeat;
+      }
       cursor: pointer;
       z-index: 4;
       border-radius: 100px;
