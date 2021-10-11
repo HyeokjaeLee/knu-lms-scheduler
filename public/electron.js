@@ -124,11 +124,11 @@ function get_saved_login_info() {
 async function create_sub_win(show) {
   const window = new BrowserWindow({
     width: 1500,
-    height: 900,
+    height: 1100,
     show: show,
     resizable: true,
   });
-  isDev && window.show();
+  isDev ? window.show() : window.setMenu(null);
   const page = await pie.getPage(browser, window);
   return { win: window, page: page };
 }
