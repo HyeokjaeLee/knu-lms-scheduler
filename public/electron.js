@@ -6,23 +6,22 @@ const { ipcMain, BrowserWindow, app } = require("electron"),
   cheerio = require("cheerio"),
   fs = require("fs");
 const today = new Date();
-const removeEmpty = (str) => str.replace(/\s/g, ""),
-  dateFormater = (str) => {
-    let date = undefined;
-    if (str.indexOf("일") != -1) {
-      date = removeEmpty(str);
-      date = date.indexOf("오후") != -1 ? date + " PM" : date;
-      date = date
-        .replace("월", "-")
-        .replace("일", "")
-        .replace("오전", " ")
-        .replace("오후", " ")
-        .replace("까지", "");
-      date = date.indexOf("년") != -1 ? date.replace("년", "-") : today.getFullYear() + "-" + date;
-      date = new Date(date);
-    }
-    return date;
-  };
+const dateFormater = (str) => {
+  let date = undefined;
+  if (str.indexOf("일") != -1) {
+    date = str.replace(/\s/g, "");
+    date = date.indexOf("오후") != -1 ? date + " PM" : date;
+    date = date
+      .replace("월", "-")
+      .replace("일", "")
+      .replace("오전", " ")
+      .replace("오후", " ")
+      .replace("까지", "");
+    date = date.indexOf("년") != -1 ? date.replace("년", "-") : today.getFullYear() + "-" + date;
+    date = new Date(date);
+  }
+  return date;
+};
 const url = "https://knulms.kongju.ac.kr";
 const basePath = `${app.getPath("appData")}/KNULMS/`;
 const loginInfoPath = basePath + "loginInfo.json";
@@ -66,11 +65,10 @@ const main = async () => {
     });
   });
 
-  ipcMain.on("open-lms-page", async (event, subjectURL) => {
+  ipcMain.on("open-lms-page", async (event, URL) => {
     const { win, page } = await create_sub_win(true);
-    console.log(subjectURL);
-    await win.loadURL(url + subjectURL);
-    const subjectIndex = subjectData.findIndex((subject) => subject.url === subjectURL);
+    !!URL.data ? await win.loadURL(url + URL.data) : await win.loadURL(url + URL.subject);
+    const subjectIndex = subjectData.findIndex((subject) => subject.url === URL.subject);
     win.on("close", async () => {
       subjectData[subjectIndex] = await get_subject_info(subjectData[subjectIndex]);
       set_subject_data();
@@ -206,9 +204,11 @@ async function get_subject_info(subject) {
             : false,
         isFail =
           deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false,
-        type = $(element).find("th>.context").text();
+        type = $(element).find("th>.context").text(),
+        url = $(element).find("th > a").attr("href");
       return {
         name: name,
+        url: url,
         type: type,
         deadline: deadLine,
         done: isDone,
@@ -216,6 +216,7 @@ async function get_subject_info(subject) {
       };
     })
     .get();
+
   win.close();
   return {
     title: subject.title,

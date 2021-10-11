@@ -26,21 +26,32 @@ function Contents(props) {
       </div>
     );
   });
+
   window.api.receive("update-finish", () => {
     setNavTxt("Detail");
   });
+
+  const link2LMS = (subjectURL, dataURL) => {
+    window.api.send("open-lms-page", {
+      subject: subjectURL,
+      data: dataURL,
+    });
+  };
 
   window.api.receive("set-subject-data", (subjectData) => {
     console.log("subject update");
     const subjectElementArr = subjectData.map((subject, index) => {
       const todoList = subject.data.filter((_data) => !_data.done && !_data.fail);
+      const pastList = subject.data.filter((_data) => _data.done || _data.fail);
       const todoCount = todoList.length;
       let deadline = "";
       let lecture = "";
       let task = <Done className="all-done" />;
       let highLight = "";
       if (todoCount > 0) {
-        const deadlineList = todoList.map((_data) => _data.deadline);
+        const deadlineList = todoList
+          .map((_data) => _data.deadline)
+          .filter((deadline) => !!deadline);
         const nearDeadline = Math.min(...deadlineList);
         const taskCount = todoList.filter((_data) => _data.type === "과제").length;
         const leftDeadline = Math.floor((nearDeadline - today) / 100 / 60 / 60 / 24) / 10;
@@ -50,41 +61,51 @@ function Contents(props) {
         highLight = leftDeadline < 5 ? "red" : "";
       }
 
-      const link2LMS = () => {
-        window.api.send("open-lms-page", subject.url);
-      };
-
       const viewDetail = () => {
-        const detailItem = subject.data.map((_data) => {
-          const result = _data.done ? (
-            <Done class="done" />
-          ) : _data.fail ? (
-            <Late class="fail" />
-          ) : (
-            <Todo class="todo" />
-          );
-          const deadline = new Date(_data.deadline);
-          const deadlineTxt = `${
-            deadline.getMonth() + 1
-          }월 ${deadline.getDate()}일 ${deadline.getHours()}:${deadline.getMinutes()}까지`;
-          return (
-            <article className="subject-detail-item">
-              <section className="subject-info-wrap">
-                <div className="type">{_data.type}</div>
-                <h2 className="name">{_data.name}</h2>
-                <div className="deadline">{deadlineTxt}</div>
-              </section>
-              {result}
-            </article>
-          );
-        });
-        setDetail(detailItem);
+        const create_view_detail = (subjectData) =>
+          subjectData.map((_data) => {
+            const result = _data.done ? (
+              <Done class="done" />
+            ) : _data.fail ? (
+              <Late class="fail" />
+            ) : (
+              <Todo class="todo" />
+            );
+            const deadline = !!_data.deadline ? new Date(_data.deadline) : undefined;
+            const deadlineTxt = !!deadline
+              ? `${
+                  deadline.getMonth() + 1
+                }월 ${deadline.getDate()}일 ${deadline.getHours()}:${deadline.getMinutes()}까지`
+              : "";
+            return (
+              <a
+                className="subject-detail-item"
+                onClick={() => {
+                  link2LMS(subject.url, _data.url);
+                }}
+              >
+                <article className="subject-info-wrap">
+                  <div className="type">{_data.type}</div>
+                  <h2 className="name">{_data.name}</h2>
+                  <div className="deadline">{deadlineTxt}</div>
+                </article>
+                {result}
+              </a>
+            );
+          });
+
+        setDetail([create_view_detail(todoList), create_view_detail(pastList)]);
       };
       index === 0 && viewDetail();
       return (
         <li className="subject-wrap" onClick={viewDetail}>
           <div className="subject-header">
-            <a onClick={link2LMS} className={`shortcut ${highLight}`}>
+            <a
+              onClick={() => {
+                link2LMS(subject.url);
+              }}
+              className={`shortcut ${highLight}`}
+            >
               <ShortCut class="shortcut-icon" />
             </a>
             <h2 className="subject-title">{subject.title}</h2>
