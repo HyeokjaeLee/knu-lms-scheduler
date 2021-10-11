@@ -5,6 +5,7 @@ const { ipcMain, BrowserWindow, app } = require("electron"),
   puppeteer = require("puppeteer-core"),
   cheerio = require("cheerio"),
   fs = require("fs");
+
 const today = new Date();
 const dateFormater = (str) => {
   let date = undefined;
@@ -22,7 +23,6 @@ const dateFormater = (str) => {
   }
   return date;
 };
-
 const url = "https://knulms.kongju.ac.kr";
 const basePath = `${app.getPath("appData")}/KNULMS/`;
 const loginInfoPath = basePath + "loginInfo.json";
@@ -120,6 +120,7 @@ function get_saved_login_info() {
   return savedLoginInfo;
 }
 
+/*메인 창을 제외한 창 생성*/
 async function create_sub_win(show) {
   const window = new BrowserWindow({
     width: 1500,
@@ -172,6 +173,7 @@ async function login(loginInfo) {
   return isLogin;
 }
 
+/*자세한 과목 정보들을 크롤링 하기위한 정보들 크롤링*/
 async function get_subject_list() {
   const { win, page } = await create_sub_win(false);
   await win.loadURL(url + "/courses");
@@ -191,6 +193,7 @@ async function get_subject_list() {
   return subjectList;
 }
 
+/*과목 정보들을 크롤링*/
 async function get_subject_info(subject) {
   const { win, page } = await create_sub_win(false);
   await win.loadURL(url + subject.url + "/grades");
@@ -228,6 +231,7 @@ async function get_subject_info(subject) {
   };
 }
 
+/*모든 과목 크롤링*/
 async function get_all_subject_info() {
   mainWin.webContents.send("update-start");
   const subjectList = await get_subject_list();
@@ -240,6 +244,7 @@ async function get_all_subject_info() {
   return subjectInfo;
 }
 
+/*과목 정보 front로 전송*/
 function set_subject_data() {
   mainWin.webContents.send("set-subject-data", subjectData);
 }

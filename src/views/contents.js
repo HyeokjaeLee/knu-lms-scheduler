@@ -62,7 +62,7 @@ function Contents() {
 
       const viewDetail = () => {
         const create_view_detail = (subjectData) =>
-          subjectData.map((_data) => {
+          subjectData.map((_data, index) => {
             const result = _data.done ? (
               <Done className="done" />
             ) : _data.fail ? (
@@ -78,7 +78,7 @@ function Contents() {
               : "";
             return (
               <article
-                key={_data.name}
+                key={`${index}.${_data.name}`}
                 className="subject-detail-item"
                 onClick={() => {
                   link2LMS(subject.url, _data.url);
