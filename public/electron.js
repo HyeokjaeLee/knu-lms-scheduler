@@ -22,12 +22,13 @@ const dateFormater = (str) => {
   }
   return date;
 };
+
 const url = "https://knulms.kongju.ac.kr";
 const basePath = `${app.getPath("appData")}/KNULMS/`;
 const loginInfoPath = basePath + "loginInfo.json";
 
+//기본경로가 없으면 생성
 !fs.existsSync(basePath) && fs.mkdirSync(basePath);
-console.log(basePath);
 
 let subjectData = [];
 
@@ -51,7 +52,7 @@ const main = async () => {
         subjectData = await get_all_subject_info();
         set_subject_data();
       } else {
-        console.log("new-user");
+        //new-user을 전송하고 화면 표시 후 사용자가 버튼을 누르면 set-target-subject 수신
         mainWin.webContents.send("new-user");
       }
     } else {
@@ -59,11 +60,11 @@ const main = async () => {
     }
   });
 
-  ipcMain.on("set-target-subject", async () => {
+  ipcMain.on("set-target-subject", async (isLogin) => {
     const { win, page } = await create_sub_win(true);
     await win.loadURL(url + "/courses");
     win.on("close", async () => {
-      mainWin.webContents.send("login-success");
+      !!isFirst && mainWin.webContents.send("login-success"); //로그인 하면서 과목설정을 하는경우에 실행
       subjectData = await get_all_subject_info();
       set_subject_data();
     });
@@ -197,6 +198,8 @@ async function get_subject_info(subject) {
     $ = cheerio.load(content);
   const subjectData = $("#grades_summary > tbody > .student_assignment.editable")
     .map((index, element) => {
+      const splitURL = $(element).find("th > a").attr("href").split("/");
+      const url = splitURL.slice(0, -2).join("/");
       const deadLine = dateFormater($(element).find("td.due").text()),
         name = $(element).find("th > a").text(),
         isDone =
@@ -205,8 +208,7 @@ async function get_subject_info(subject) {
             : false,
         isFail =
           deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false,
-        type = $(element).find("th>.context").text(),
-        url = $(element).find("th > a").attr("href");
+        type = $(element).find("th>.context").text();
       return {
         name: name,
         url: url,

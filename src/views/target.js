@@ -4,7 +4,7 @@ import example from "../assets/img/example.gif";
 import Footer from "../components/footer";
 function TargetView() {
   const set_subjects = () => {
-    window.api.send("set-target-subject");
+    window.api.send("set-target-subject", true);
   };
 
   return (
