@@ -19,14 +19,19 @@ function LoginView() {
   const on_change_keepLoginInfo = (e) => {
     setKeepLoginInfo(e.target.checked);
   };
+
+  const [onLoginAlert, setOnLoginAlert] = useState("default");
+
   /*입력 받은 id,비밀번호를 electron으로 전달*/
   const send_login_info = () => {
+    setOnLoginAlert("show");
     window.api.send("login", { id: id, password: password, keep: keepLoginInfo });
   };
 
   /*로그인 실패를 사용자에게 알려줌*/
   const [loginFailAlert, setLoginFailAlert] = useState("default");
   window.api.receive("login-fail", () => {
+    setOnLoginAlert("hide");
     setLoginFailAlert("show");
     setTimeout(() => {
       setLoginFailAlert("hide");
@@ -67,7 +72,8 @@ function LoginView() {
             로그인
           </button>
         </article>
-        <div className={`login-fail ${loginFailAlert}`}>
+        <div className={`login-alert ${onLoginAlert}`}>LMS에 로그인하고 있습니다.</div>
+        <div className={`login-alert ${loginFailAlert}`}>
           로그인에 실패했습니다.
           <br />
           학번과 비밀번호를 확인해 주세요.
