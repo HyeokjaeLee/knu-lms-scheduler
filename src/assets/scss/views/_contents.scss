@@ -93,6 +93,7 @@
     > .warning {
       background-color: #e7604a;
       padding: {
+        left: 0.2em;
         bottom: 0.2em;
         right: 0.4em;
       }
@@ -202,8 +203,7 @@
   }
 
   &.urgent {
-    background-color: #e7604a;
-    color: darken(white, 5%);
+    background-color: lighten(red, 30%);
   }
 }
 
