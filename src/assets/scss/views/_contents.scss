@@ -80,13 +80,30 @@
   &:hover {
     border: 2px solid white;
   }
+  &.finished {
+    background-color: lighten(#353942, 5%);
+    color: lighten(#353942, 30%);
+  }
   > .subject-header {
     display: flex;
     align-items: center;
     padding: 1em;
     gap: 1em;
     border-bottom: 2px solid #474b58;
+    > .warning {
+      background-color: #e7604a;
+      padding: {
+        bottom: 0.2em;
+        right: 0.4em;
+      }
+      border-radius: $borderRadius;
+      display: none;
+      &.urgent {
+        display: block;
+      }
+    }
     > .subject-title {
+      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -103,14 +120,10 @@
       padding: 0.5em;
       align-items: center;
       justify-content: center;
-      &.red {
-        background-color: #e7604a;
-      }
-
       > .shortcut-icon {
         width: 1.5em;
         height: 1.5em;
-        fill: white;
+        fill: $txtColor;
       }
     }
   }
@@ -123,12 +136,6 @@
       text-align: center;
     }
   }
-}
-
-.all-done {
-  width: 1em;
-  height: 1em;
-  fill: green;
 }
 
 .loading-wrap {
@@ -188,6 +195,15 @@
   }
   .subject-info-wrap {
     flex: 1;
+  }
+  &.finished {
+    background-color: lighten($subTxtColor, 40%);
+    color: darken(white, 5%);
+  }
+
+  &.urgent {
+    background-color: #e7604a;
+    color: darken(white, 5%);
   }
 }
 

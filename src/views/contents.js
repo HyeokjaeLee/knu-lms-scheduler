@@ -47,19 +47,28 @@ function Contents() {
       const todoList = subject.data.filter((data) => !data.done && !data.fail);
       const pastList = subject.data.filter((data) => data.done || data.fail);
       const todoCount = todoList.length;
-      let deadline = "";
-      let lecture = "";
-      let task = <Done className="all-done" />;
-      let highLight = "";
+      let highlight = "finished";
+      let subjectItem = {
+        deadline: "", //마감일
+        lecture: "", //강의
+        task: "완료", //과제
+      };
+
       if (todoCount > 0) {
         const deadlineList = todoList.map((data) => data.deadline).filter((deadline) => !!deadline);
         const nearDeadline = Math.min(...deadlineList);
         const taskCount = todoList.filter((data) => data.type === "과제").length;
         const leftDeadline = Math.floor((nearDeadline - today) / 100 / 60 / 60 / 24) / 10;
-        task = `미제출 ${taskCount}개`;
-        lecture = `미수강 ${todoCount - taskCount}개`;
-        deadline = `마감 ${leftDeadline}일`;
-        highLight = leftDeadline < 5 ? "red" : "";
+        subjectItem = {
+          deadline: `마감 ${leftDeadline}일`,
+          lecture: `미수강 ${todoCount - taskCount}개`,
+          task: `미제출 ${taskCount}개`,
+        };
+        if (leftDeadline <= 1) {
+          highlight = "urgent";
+        } else {
+          highlight = "";
+        }
       }
 
       const viewDetail = () => {
@@ -79,10 +88,16 @@ function Contents() {
                   deadline.getMonth() + 1
                 }월 ${deadline.getDate()}일 ${deadline.getHours()}:${deadline.getMinutes()}까지`
               : "";
+            const detail_highlight =
+              data.done || data.fail
+                ? "finished"
+                : Math.floor((deadline - today) / 100 / 60 / 60 / 24) / 10 <= 1
+                ? "urgent"
+                : "";
             return (
               <article
                 key={`${index}.${data.name}`}
-                className="subject-detail-item"
+                className={`subject-detail-item ${detail_highlight}`}
                 onClick={() => {
                   link2LMS(subject.url, data.url);
                 }}
@@ -101,22 +116,23 @@ function Contents() {
       };
       subjectIndex === currentSubjectIndex && viewDetail();
       return (
-        <li className="subject-wrap" onClick={viewDetail} key={subject.title}>
+        <li className={`subject-wrap ${highlight}`} onClick={viewDetail} key={subject.title}>
           <div className="subject-header">
             <button
               onClick={() => {
                 link2LMS(subject.url);
               }}
-              className={`shortcut ${highLight}`}
+              className="shortcut"
             >
               <ShortCut className="shortcut-icon" />
             </button>
             <h2 className="subject-title">{subject.title}</h2>
+            <span className={`warning ${highlight}`}>⚠️마감</span>
           </div>
           <div className="subject-item-wrap">
-            <span className="lecture">{lecture}</span>
-            <span className="task">{task}</span>
-            <span className="deadline">{deadline}</span>
+            <span className="lecture">{subjectItem.lecture}</span>
+            <span className="task">{subjectItem.task}</span>
+            <span className="deadline">{subjectItem.deadline}</span>
           </div>
         </li>
       );
