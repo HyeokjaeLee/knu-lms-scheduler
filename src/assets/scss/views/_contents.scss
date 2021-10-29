@@ -211,3 +211,19 @@
 .todo {
   background-color: #353942;
 }
+
+.click-prevention {
+  z-index: 9;
+  background-color: rgba(white, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  &.show {
+    display: block;
+  }
+  &.hide {
+    display: none;
+  }
+}

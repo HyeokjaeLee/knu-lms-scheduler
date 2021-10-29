@@ -76,8 +76,10 @@ const main = async () => {
     !!URL.data ? await win.loadURL(url + URL.data) : await win.loadURL(url + URL.subject);
     const subjectIndex = subjectData.findIndex((subject) => subject.url === URL.subject);
     win.on("close", async () => {
+      mainWin.webContents.send("update-start");
       subjectData[subjectIndex] = await get_subject_info(subjectData[subjectIndex]);
       set_subject_data();
+      mainWin.webContents.send("update-finish");
     });
   });
 

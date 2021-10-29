@@ -12,6 +12,7 @@ function Contents() {
   const [subjectList, setSubjectList] = React.useState(<></>);
   const [navTxt, setNavTxt] = React.useState("Detail");
   const [detail, setDetail] = React.useState(<></>);
+  const [clickPrevent, setClickPrevent] = React.useState("show");
   const update_subject = () => {
     window.api.send("update-subject");
   };
@@ -21,6 +22,7 @@ function Contents() {
   };
 
   window.api.receive("update-start", () => {
+    setClickPrevent("show");
     setNavTxt(
       <div className="loading-wrap">
         <label>과목 정보를 불러오는 중입니다...</label>
@@ -30,6 +32,7 @@ function Contents() {
   });
 
   window.api.receive("update-finish", () => {
+    setClickPrevent("hide");
     setNavTxt("Detail");
   });
 
@@ -123,6 +126,7 @@ function Contents() {
 
   return (
     <section className="contents-section">
+      <div className={`click-prevention ${clickPrevent}`}></div>
       <nav>
         <div className="logo-wrap">
           <Logo className="nav-logo" />
