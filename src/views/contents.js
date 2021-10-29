@@ -5,6 +5,7 @@ import { ReactComponent as Todo } from "../assets/img/todo.svg";
 import { ReactComponent as Late } from "../assets/img/late.svg";
 import { ReactComponent as ShortCut } from "../assets/img/shortcut.svg";
 import Footer from "../components/footer";
+let currentSubjectIndex = 0;
 
 function Contents() {
   const today = new Date().getTime();
@@ -38,21 +39,19 @@ function Contents() {
       data: dataURL,
     });
   };
-  window.api.receive("set-subject-data", (subjectData) => {
-    const subjectElementArr = subjectData.map((subject, index) => {
-      const todoList = subject.data.filter((_data) => !_data.done && !_data.fail);
-      const pastList = subject.data.filter((_data) => _data.done || _data.fail);
+  window.api.receive("set-subject-data", (allSubject) => {
+    const subjectElementArr = allSubject.map((subject, subjectIndex) => {
+      const todoList = subject.data.filter((data) => !data.done && !data.fail);
+      const pastList = subject.data.filter((data) => data.done || data.fail);
       const todoCount = todoList.length;
       let deadline = "";
       let lecture = "";
       let task = <Done className="all-done" />;
       let highLight = "";
       if (todoCount > 0) {
-        const deadlineList = todoList
-          .map((_data) => _data.deadline)
-          .filter((deadline) => !!deadline);
+        const deadlineList = todoList.map((data) => data.deadline).filter((deadline) => !!deadline);
         const nearDeadline = Math.min(...deadlineList);
-        const taskCount = todoList.filter((_data) => _data.type === "과제").length;
+        const taskCount = todoList.filter((data) => data.type === "과제").length;
         const leftDeadline = Math.floor((nearDeadline - today) / 100 / 60 / 60 / 24) / 10;
         task = `미제출 ${taskCount}개`;
         lecture = `미수강 ${todoCount - taskCount}개`;
@@ -61,16 +60,17 @@ function Contents() {
       }
 
       const viewDetail = () => {
-        const create_view_detail = (subjectData) =>
-          subjectData.map((_data, index) => {
-            const result = _data.done ? (
+        currentSubjectIndex = subjectIndex;
+        const create_view_detail = (sbuject) =>
+          sbuject.map((data, index) => {
+            const result = data.done ? (
               <Done className="done" />
-            ) : _data.fail ? (
+            ) : data.fail ? (
               <Late className="fail" />
             ) : (
               <Todo className="todo" />
             );
-            const deadline = !!_data.deadline ? new Date(_data.deadline) : undefined;
+            const deadline = !!data.deadline ? new Date(data.deadline) : undefined;
             const deadlineTxt = !!deadline
               ? `${
                   deadline.getMonth() + 1
@@ -78,15 +78,15 @@ function Contents() {
               : "";
             return (
               <article
-                key={`${index}.${_data.name}`}
+                key={`${index}.${data.name}`}
                 className="subject-detail-item"
                 onClick={() => {
-                  link2LMS(subject.url, _data.url);
+                  link2LMS(subject.url, data.url);
                 }}
               >
                 <div className="subject-info-wrap">
-                  <div className="type">{_data.type}</div>
-                  <h2 className="name">{_data.name}</h2>
+                  <div className="type">{data.type}</div>
+                  <h2 className="name">{data.name}</h2>
                   <div className="deadline">{deadlineTxt}</div>
                 </div>
                 {result}
@@ -96,7 +96,7 @@ function Contents() {
 
         setDetail([create_view_detail(todoList), create_view_detail(pastList)]);
       };
-      index === 0 && viewDetail();
+      subjectIndex === currentSubjectIndex && viewDetail();
       return (
         <li className="subject-wrap" onClick={viewDetail} key={subject.title}>
           <div className="subject-header">

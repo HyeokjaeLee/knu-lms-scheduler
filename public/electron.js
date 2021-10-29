@@ -70,6 +70,7 @@ const main = async () => {
     });
   });
 
+  //특정 과목의 강의 창 생성
   ipcMain.on("open-lms-page", async (event, URL) => {
     const { win, page } = await create_sub_win(true);
     !!URL.data ? await win.loadURL(url + URL.data) : await win.loadURL(url + URL.subject);
@@ -204,17 +205,19 @@ async function get_subject_info(subject) {
       const splitURL = $(element).find("th > a").attr("href").split("/");
       const url = splitURL.slice(0, -2).join("/");
       const deadLine = dateFormater($(element).find("td.due").text()),
+        noScore = $(element).find(".possible.points_possible").text().replace(/(\s*)/g, "") === "",
         name = $(element).find("th > a").text(),
         isDone =
-          $(element).find("td.assignment_score > div > span > span").text().indexOf("-") == -1
+          $(element).find("td.assignment_score > div > span > span").text().indexOf("-") == -1 ||
+          noScore
             ? true
             : false,
         isFail =
           deadLine == undefined ? false : deadLine <= today && isDone == false ? true : false,
-        type = $(element).find("th>.context").text();
+        type = noScore ? "점수가 없는 항목" : $(element).find("th>.context").text();
       return {
         name: name,
-        url: url,
+        url: url, //과목의 강의 하나의 url
         type: type,
         deadline: deadLine,
         done: isDone,
@@ -226,7 +229,7 @@ async function get_subject_info(subject) {
   win.close();
   return {
     title: subject.title,
-    url: subject.url,
+    url: subject.url, //과목 url
     data: subjectData,
   };
 }
