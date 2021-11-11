@@ -1,6 +1,6 @@
-![header](https://capsule-render.vercel.app/api?type=rect&color=gradient&height=100&section=header&text=KNU%20LMS%20Scheduler&fontSize=30&fontAlign=73&fontAlignY=50)
+![header](https://capsule-render.vercel.app/api?type=rect&color=gradient&height=100&section=header&text=KNU%20LMS%20Scheduler&fontSize=30&fontAlign=80&fontAlignY=52)
 
-![JAVASCRIPT](https://img.shields.io/badge/Javascript-F7DF1E?style=flat-square&logo=Javascript&logoColor=black) ![NODE](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=Node.js&logoColor=white) ![ELECTRON](https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=Electron&logoColor=white) ![REACT](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) ![PUPPETEER](https://img.shields.io/badge/Puppeteer-40B5A4?style=flat-square&logo=Puppeteer&logoColor=white)
+![NODE](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=Node.js&logoColor=white)&nbsp;&nbsp;&nbsp;![JAVASCRIPT](https://img.shields.io/badge/Javascript-F7DF1E?style=flat-square&logo=Javascript&logoColor=black) ![ELECTRON](https://img.shields.io/badge/Electron-47848F?style=flat-square&logo=Electron&logoColor=white) ![REACT](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) ![PUPPETEER](https://img.shields.io/badge/Puppeteer-40B5A4?style=flat-square&logo=Puppeteer&logoColor=white)
 
 ## 📝 About
 
