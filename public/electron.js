@@ -239,15 +239,27 @@ async function get_subject_info(subject) {
 /*모든 과목 크롤링*/
 async function get_all_subject_info() {
   mainWin.webContents.send("update-start");
-  const subjectList = await get_subject_list();
-  const subjectInfo = await Promise.all(
-    subjectList.map((subject) => {
-      return get_subject_info(subject);
-    })
-  );
+  const CHUNKSIZE = 5;
+  const subjectList = arrayToChunks(await get_subject_list(), CHUNKSIZE);
+  let result = [];
+  for(subject of subjectList){
+    const subjectInfo = await Promise.all(subject.map((info) => get_subject_info(info)));
+    subjectInfo.forEach((info) => result.push(info));
+  }
   mainWin.webContents.send("update-finish");
-  return subjectInfo;
+  return result;
 }
+
+/* 배열 여러 덩어리로 나누기 */
+const arrayToChunks = (array, CHUNKSIZE) => {
+  let result = [];
+  let start = 0;
+  while(start < array.length){
+    result.push(array.slice(start, start+CHUNKSIZE));
+    start += CHUNKSIZE;
+  }
+  return result;
+};
 
 /*과목 정보 front로 전송*/
 function set_subject_data() {
