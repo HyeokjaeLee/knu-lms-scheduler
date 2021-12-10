@@ -57,12 +57,14 @@ function Contents() {
         };
 
         if (todoCount > 0) {
-          const deadlineList = todoList.map((data) => data.deadline).filter((deadline) => !!deadline);
+          const deadlineList = todoList
+            .map((data) => data.deadline)
+            .filter((deadline) => !!deadline);
           const nearDeadline = Math.min(...deadlineList);
           const taskCount = todoList.filter((data) => data.type === "과제").length;
           const leftDeadline = Math.floor((nearDeadline - today) / 100 / 60 / 60 / 24) / 10;
           subjectItem = {
-            deadline: `마감 ${leftDeadline}일`,
+            deadline: leftDeadline === Infinity ? "학기 내 마감" : `마감 ${leftDeadline}일`,
             lecture: `미수강 ${todoCount - taskCount}개`,
             task: `미제출 ${taskCount}개`,
           };
