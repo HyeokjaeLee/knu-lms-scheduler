@@ -40,7 +40,7 @@ let browser = (async () => {
 
 let mainWin;
 const main = async () => {
-  mainWin = await createMainWin();
+  mainWin = await create_main_win();
   mainWin.on("close", () => {
     app.quit();
   });
@@ -87,8 +87,13 @@ const main = async () => {
     get_all_subject_info();
   });
 };
+main();
 
-function createMainWin() {
+/**
+ * 메인 창 생성
+ * @returns {Promise<BrowserWindow>}
+ */
+function create_main_win() {
   return new Promise((resolve, reject) => {
     app.on("ready", async () => {
       const mainWin = new BrowserWindow({
@@ -114,7 +119,10 @@ function createMainWin() {
   });
 }
 
-/*기존에 저장된 로그인 정보가 있으면 불러오고 input에 입력*/
+/**
+ * 기존에 저장된 로그인 정보가 있으면 불러오고 input에 입력
+ * @returns {{id:string, password:string}} 로그인 정보 객체
+ */
 function get_saved_login_info() {
   const savedLoginInfo = fs.existsSync(loginInfoPath)
     ? JSON.parse(fs.readFileSync(loginInfoPath))
@@ -123,7 +131,10 @@ function get_saved_login_info() {
   return savedLoginInfo;
 }
 
-/*메인 창을 제외한 창 생성*/
+/**
+ * 메인 창을 제외한 창 생성
+ * @param {boolean} show 창을 표시할지 여부
+ */
 async function create_sub_win(show) {
   const window = new BrowserWindow({
     width: 1500,
@@ -136,6 +147,11 @@ async function create_sub_win(show) {
   return { win: window, page: page };
 }
 
+/**
+ * 로그인 함수
+ * @param {{id:string, password:string}} loginInfo
+ * @returns {Promise<boolean>} 로그인 성공 여부
+ */
 async function login(loginInfo) {
   if (loginInfo.id.length === 0 || loginInfo.password.length === 0) {
     return false;
@@ -176,7 +192,22 @@ async function login(loginInfo) {
   return isLogin;
 }
 
-/*자세한 과목 정보들을 크롤링 하기위한 정보들 크롤링*/
+/**
+ * 모든 과목 정보 크롤링
+ */
+async function get_all_subject_info() {
+  mainWin.webContents.send("update-start");
+  const subjectList = divide_array(await get_subject_list());
+  const result = [];
+  for (subject of subjectList)
+    result.push(...(await Promise.all(subject.map((info) => get_subject_info(info)))));
+  mainWin.webContents.send("update-finish");
+  return result;
+}
+
+/**
+ * 자세한 과목 정보들을 크롤링 하기위한 정보들 크롤링
+ */
 async function get_subject_list() {
   const { win, page } = await create_sub_win(false);
   await win.loadURL(url + "/courses");
@@ -196,7 +227,10 @@ async function get_subject_list() {
   return subjectList;
 }
 
-/*과목 정보들을 크롤링*/
+/**
+ * 단일 과목 정보 크롤링
+ * @param {object} subject 크롤링을 위한 정보 객체
+ */
 async function get_subject_info(subject) {
   const { win, page } = await create_sub_win(false);
   await win.loadURL(url + subject.url + "/grades");
@@ -236,34 +270,20 @@ async function get_subject_info(subject) {
   };
 }
 
-/*모든 과목 크롤링*/
-async function get_all_subject_info() {
-  mainWin.webContents.send("update-start");
-  const CHUNKSIZE = 5;
-  const subjectList = arrayToChunks(await get_subject_list(), CHUNKSIZE);
-  let result = [];
-  for(subject of subjectList){
-    const subjectInfo = await Promise.all(subject.map((info) => get_subject_info(info)));
-    subjectInfo.forEach((info) => result.push(info));
-  }
-  mainWin.webContents.send("update-finish");
+/**
+ * 배열 내부의 값을 일정 개수만큼 묶어서 배열로 만들어주는 함수
+ * @param {Array} array 나눌 배열
+ * @returns {Array} 나눠진 배열
+ * */
+function divide_array(array) {
+  const result = [];
+  for (let start = 0; start < array.length; start += CHUNK_SIZE)
+    result.push(array.slice(start, start + CHUNK_SIZE));
   return result;
 }
-
-/* 배열 여러 덩어리로 나누기 */
-const arrayToChunks = (array, CHUNKSIZE) => {
-  let result = [];
-  let start = 0;
-  while(start < array.length){
-    result.push(array.slice(start, start+CHUNKSIZE));
-    start += CHUNKSIZE;
-  }
-  return result;
-};
+const CHUNK_SIZE = 5;
 
 /*과목 정보 front로 전송*/
 function set_subject_data() {
   mainWin.webContents.send("set-subject-data", subjectData);
 }
-
-main();
