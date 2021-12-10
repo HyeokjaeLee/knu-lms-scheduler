@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactComponent as Logo } from "../assets/img/logo.svg";
 import Footer from "../components/footer";
 
@@ -30,18 +30,20 @@ function LoginView() {
 
   /*로그인 실패를 사용자에게 알려줌*/
   const [loginFailAlert, setLoginFailAlert] = useState("default");
-  window.api.receive("login-fail", () => {
-    setOnLoginAlert("hide");
-    setLoginFailAlert("show");
-    setTimeout(() => {
-      setLoginFailAlert("hide");
-    }, 1500);
-  });
+  useEffect(() => {
+    window.api.receive("login-fail", () => {
+      setOnLoginAlert("hide");
+      setLoginFailAlert("show");
+      setTimeout(() => {
+        setLoginFailAlert("hide");
+      }, 1500);
+    });
 
-  window.api.receive("saved-login-info", (loginInfo) => {
-    setId(loginInfo.id);
-    setPassword(loginInfo.password);
-  });
+    window.api.receive("saved-login-info", (loginInfo) => {
+      setId(loginInfo.id);
+      setPassword(loginInfo.password);
+    });
+  }, []);
 
   window.api.send("app-ready");
   return (
